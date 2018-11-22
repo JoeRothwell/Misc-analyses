@@ -1,30 +1,16 @@
-library(readxl)
-library(tidyverse)
+# Forest plots 
 
-# p-value adjustment -----------------------------------------------------------
+# 1. Neil, CRC paper
+# 2. Nathalie, manuscript and group meeting slides
+# 3. Marc, section day slides
+# 4. Isabel, manuscript on amino acids and cancer
 
-t1 <- read_xlsx("Forest Isa.xlsx", sheet = 3)
+# Email me for data files!!!
 
-class(t1$trendtest)
-
-p.raw.chisq   <- t1$probchisq #%>% na.omit
-p.fdr.chisq   <- p.adjust(t1$probchisq, method = "fdr") #%>% na.omit
-p.bonf.chisq  <- p.adjust(t1$probchisq, method = "bonferroni") #%>% na.omit
-
-p.raw.trend   <- t1$trendtest #%>% na.omit
-p.fdr.trend   <- p.adjust(t1$trendtest, method = "fdr") #%>% na.omit
-p.bonf.trend  <- p.adjust(t1$trendtest, method = "bonferroni") #%>% na.omit
-
-df <- cbind(Cancer = t1$Cancer, Parameter = t1$Parameter, 
-            p.raw.chisq, p.fdr.chisq, p.bonf.chisq, p.raw.trend, p.fdr.trend, p.bonf.trend)
-
-write.csv(df, "FDR adjustment.csv")
-
-# Forest plots ----------------------------------------------------------------------- 
+# package example ----
 
 library(metafor)
 library(tidyverse)
-# package example ----
 data(dat.bcg)
 dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
 forest(dat$yi, #vi=NA, #sei=NA,
@@ -36,8 +22,6 @@ forest(dat$yi, #vi=NA, #sei=NA,
 t2 <- read.csv("Forest plots/Forest table 2.csv")
 rowvec <- rev(c(1:3, 6:7, 10:13, 16:17, 20)) + 1
 pointvec <- 18
-#pointvec <- ifelse(t2$HR == 1, NA, 18)
-#colvec <- ifelse(t2$HR == 1, "white", "black")
 #can use efac=0 to suppress vertical lines on CIs
 
 dev.off()
@@ -56,11 +40,7 @@ abline(h = 23)
 par(mar=c(5,0,0,1))
 forest(x = t2$HR, ci.ub = t2$high, ci.lb = t2$low, rows = rowvec, ylim=c(1,25), refline=1, 
        xlab="", psize= rep(1.5, nrow(t2)), xlim=c(0,3), cex=1, subset=1:12, slab=t2$N, pch = 18)
-#addpoly(x = c(1,1,1,1), rows = c(4,8,14,18), vi = c(0.00005,0.001,0.001,0.001), annotate = T)
-#text(1.4, c(4,8,14,18), c(1,1,1,1))
-#text(0, c(4,8,14,18), c("2,559", "5,274", "1,566", "2,192"), pos=4)
 text(3, c(1, 10), c("P-trend < 0.0001", "P-trend = 0.01"), pos = 2)
-#text(3,1, expression(paste(italic(P),"-trend < 0.0001" )))
 text(1, 24, "Colorectal", cex = 1.2)
 text(3, 24, "HR [95% CI]", cex = 1, pos = 2)
 
@@ -116,11 +96,8 @@ abline(h = 17)
 #Colorectal
 par(mar=c(5,0,0,1))
 forest(slab = t3$n, x = t3$HR, ci.ub = t3$high, ci.lb = t3$low, # Read data frame
-       rows = rowvec, 
-       xlim = c(0.8, 1.65), 
-       ylim = c(1, 19),         # Plot row spacing and x limits
-       refline = 1, xlab = "", 
-       psize = rep(1.5, 32), cex=1, pch = 18,    # Point and text attributes
+       rows = rowvec, xlim = c(0.8, 1.65), ylim = c(1, 19),         # Plot row spacing and x limits
+       refline = 1, xlab = "", psize = rep(1.5, 32), cex=1, pch = 18,    # Point and text attributes
        subset = 1:8)
 text(1, 17.5, "Colorectal", cex = 1.2)
 text(1.65, 17.5, "HR [95% CI]", cex = 1.2, pos = 2)
@@ -128,16 +105,14 @@ text(1.65, 17.5, "HR [95% CI]", cex = 1.2, pos = 2)
 #Colon proximal
 par(mar=c(5,4,0,1))
 forest(x=t3$HR, ci.lb=t3$low, ci.ub=t3$high, slab = t3$n, refline = 1, xlab="", psize=rep(1.5,32), 
-       subset=9:16, rows = rowvec, ylim=c(1,19), xlim=c(0.7, 2.1), 
-       cex=1, pch=18)
+       subset=9:16, rows = rowvec, ylim=c(1,19), xlim=c(0.7, 2.1), cex=1, pch=18)
 text(1, 17.5, "Colon proximal", cex = 1.2)
 text(2.1, 17.5, "HR [95% CI]", cex = 1, pos = 2)
 
 #Colon distal
 par(mar=c(5,4,0,1))
 forest(x=t3$HR, ci.lb=t3$low, ci.ub=t3$high, rows = rowvec, ylim=c(1,19), slab = t3$n, subset=17:24,
-       xlab="", refline = 1, psize=rep(1.5,32), xlim=c(0.8, 2), 
-       cex=1, pch=18)
+       xlab="", refline = 1, psize=rep(1.5,32), xlim=c(0.8, 2), cex=1, pch=18)
 text(1, 17.5, "Colon distal", cex = 1.2)
 text(2, 17.5, "HR [95% CI]", cex = 1, pos = 2)
 
@@ -221,24 +196,17 @@ abline(h = 29)
 
 library(tidyverse)
 vec <- 1:46 %in% c(1,3,5,7,9,11,13,15,17,19,20,21,22,23)
-t1 <- read_csv("Forest data Nathalie.csv") %>% mutate(site.filt = vec, Cat2 = ifelse(site.filt == T, site, ""))
-
+t1 <- read_csv("Forest plots/Forest data Nathalie.csv") %>% mutate(site.filt = vec, Cat2 = ifelse(site.filt == T, site, ""))
 
 rowvec = rev(c(1,3,5,7,9,11:12,14:15,17:18,20:21,23:24,26:27,29:30,32:33,35:36))
 
 dev.off()
 par(mfrow=c(1,2))
 par(mar=c(4,4,0,0))
-forest(slab = t1$Cat2,
-       ilab = t1$category, ilab.xpos = 0.55, ilab.pos = 4,
-       x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
-       refline = 1, rows = rowvec,
+forest(slab = t1$Cat2, ilab = t1$category, ilab.xpos = 0.55, ilab.pos = 4,
+       x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
-       ylim = c(1, 40), 
-       xlim = c(0, 1.8), 
-       #width = 2,
-       pch = 18, psize= rep(1.5, nrow(t1)),
-       cex = 0.8, subset = 1:23)
+       ylim = c(1, 40), xlim = c(0, 1.8), pch = 18, psize= rep(1.5, nrow(t1)), cex = 0.8, subset = 1:23)
 
 text(c(0.07, 1, 1.6), 39, c("Site", "With BMI", "HR [95% CI]"), cex = 0.8)
 #bottom, left, top, right
@@ -246,13 +214,8 @@ text(c(0.07, 1, 1.6), 39, c("Site", "With BMI", "HR [95% CI]"), cex = 0.8)
 par(mar=c(4,0,0,7))
 forest(x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, refline = 1, rows = rowvec,
        xlab="Mulitivariable-adjusted HR", psize = rep(1.5, nrow(t1)), 
-       ylim = c(1, 40), 
-       xlim = c(0.1, 2.1), 
-       ilab = t1$category, ilab.xpos = 0.2, ilab.pos = 4,
-       slab = NA,
-       #width = 2,
-       pch = 18, 
-       cex = 0.8, subset = 24:46)
+       ylim = c(1, 40), xlim = c(0.1, 2.1), ilab = t1$category, ilab.xpos = 0.2, ilab.pos = 4,
+       slab = NA, pch = 18, cex = 0.8, subset = 24:46)
 
 text(c(1, 1.8), 39, c("Without BMI", "HR [95% CI]"), cex = 0.8)
 
@@ -270,19 +233,9 @@ par(mfrow=c(1,2))
 #Sets margins
 par(mar=c(4,4,0,0))
 
-forest(slab = t1$site,
-       #ilab = t1$model, ilab.xpos = 0.55, ilab.pos = 4,
-       x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
-       refline = 1, rows = rowvec1,
-       xlab = "Mulitivariable-adjusted HR",
-       ylim = c(1, max(rowvec1) + 3), 
-       xlim = c(0.2, 1.8), 
-       #width = 2,
-       #lty = "blank",
-       #pch = NA,
-       pch = 23, 
-       bg="dodgerblue", psize= rep(2, 46), fill="blue",
-       cex = 0.8, subset = 1:10)
+forest(slab = t1$site, x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, refline = 1, rows = rowvec1, 
+       xlab = "Mulitivariable-adjusted HR", ylim = c(1, max(rowvec1) + 3), xlim = c(0.2, 1.8), 
+       pch = 23, bg="dodgerblue", psize= rep(2, 46), fill="blue", cex = 0.8, subset = 1:10)
 
 #text(c(0.38, 1), max(rowvec) + 2, c("Site (without BMI)", "HR [95% CI]"), cex = 0.8)
 text(c(1), max(rowvec1) + 2, c("HR [95% CI]"), cex = 0.8)
@@ -290,21 +243,12 @@ text(c(1), max(rowvec1) + 2, c("HR [95% CI]"), cex = 0.8)
 #bottom, left, top, right
 par(mar=c(4,0,0,2))
 
-forest(slab = t1$site,
-       #ilab = t1$model, ilab.xpos = 0.55, ilab.pos = 4,
-       x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
-       refline = 1, rows = rowvec1,
-       xlab = "Mulitivariable-adjusted HR",
-       ylim = c(1, max(rowvec1) + 3), 
-       xlim = c(0.1, 1.8), 
-       #width = 2,
-       pch = 23, bg="dodgerblue", psize= rep(2, 46),
-       cex = 0.8, subset = 11:20)
+forest(slab = t1$site, x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, refline = 1, rows = rowvec1,
+       xlab = "Mulitivariable-adjusted HR", ylim = c(1, max(rowvec1) + 3), xlim = c(0.1, 1.8), 
+       pch = 23, bg="dodgerblue", psize= rep(2, 46), cex = 0.8, subset = 11:20)
 
 #text(c(0.2, 1), max(rowvec) + 2, c("Site (with BMI)", "HR [95% CI]"), cex = 0.8)
 text(c(1), max(rowvec1) + 2, c("HR [95% CI]"), cex = 0.8)
-
-
 
 #Female cancers
 dev.off()
@@ -316,14 +260,11 @@ rowvec2 <- t1[t1$model == "With BMI" & t1$category == "Women" , ]$spacing
 par(mar=c(4,4,0,0))
 
 forest(slab = t1$site,
-       #ilab = t1$model, ilab.xpos = 0.55, ilab.pos = 4,
        x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
        refline = 1, rows = rowvec2,
        xlab = "Mulitivariable-adjusted HR",
        ylim = c(1, max(rowvec2) + 3), 
        xlim = c(0.2, 2), 
-       #alim = c(0.6, 1.5),
-       #width = 2,
        pch = 23, bg="orange", psize= rep(2, 46), #fill="blue",
        cex = 0.8, subset = 21:33)
 
@@ -334,14 +275,11 @@ text(c(1), max(rowvec2) + 2, c("HR [95% CI]"), cex = 0.8)
 par(mar=c(4,0,0,2))
 
 forest(slab = t1$site,
-       #ilab = t1$model, ilab.xpos = 0.55, ilab.pos = 4,
        x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
        refline = 1, rows = rowvec2,
        xlab = "Mulitivariable-adjusted HR",
        ylim = c(1, max(rowvec2) + 3), 
        xlim = c(-0.4, 2.4), 
-       #alim = c(0.5, 1.8),
-       #width = 2,
        pch = 23, bg="orange", psize= rep(2, 46),
        cex = 0.8, subset = 34:46)
 
@@ -373,11 +311,8 @@ forest(slab = t1$site,
        xlab = "Mulitivariable-adjusted HR",
        ylim = c(1, max(rowvec) + 3), 
        xlim = c(-0.6, 3), 
-       #alim = c(0.8, 1.5),
-       #width = 2,
        pch = pointvec,
        col = colvec,
-       #lty = linevec,
        psize= rep(1.5, nrow(t1)), #fill = "blue",
        cex = 0.8, subset = 1:28)
 
@@ -389,17 +324,12 @@ text(1, max(rowvec) + 2, "Men", cex = 0.8)
 #bottom, left, top, right
 par(mar=c(4,2,0,6))
 
-forest(slab = NA, #slab = t1$model,
-       #ilab = t1$model, ilab.xpos = 0.55, ilab.pos = 4,
+forest(slab = NA,
        x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
        refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
        ylim = c(1, max(rowvec) + 3), 
        xlim = c(0, 3), 
-       #alim = c(0.5, 1.8),
-       #width = 2,
-       #pch = 18, 
-       #lty="blank",
        col = colvec,
        pch = pointvec,
        psize= rep(1.5, nrow(t1)),
@@ -417,14 +347,11 @@ par(mfrow=c(1,2))
 par(mar=c(4,3.5,0,0))
 
 forest(slab = t2$site,
-       #ilab = t2$model, ilab.xpos = -1, ilab.pos = 4,
        x = t2$HR, ci.ub = t2$high, ci.lb = t2$low, 
        refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
        ylim = c(1, max(rowvec) + 3), 
        xlim = c(-3.5, 6), 
-       #alim = c(0.8, 1.5),
-       #width = 2,
        pch = pointvec,
        col = colvec,
        psize= rep(1.5, nrow(t2)), #fill="blue",
@@ -438,7 +365,6 @@ text(rep(-3.5, 4), c(5, 8, 11, 14), pull(t1[c(25, 23, 21, 19), 1]), cex = 0.8, p
 par(mar=c(4,2,0,6))
 
 forest(slab = NA,
-       #ilab = t2$model, ilab.xpos = 0.55, ilab.pos = 4,
        x = t2$HR, ci.ub = t2$high, ci.lb = t2$low, 
        refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
@@ -570,33 +496,94 @@ text(3.75, c(2, 8, 14, 19, 25),
      c("p-trend = 0.5", "p-trend = 0.69", "p-trend = 0.01", "p-trend = 0.01", "p-trend = 0.09"), 
      cex = 1, pos = 2)
 
-# Isa paper amino acids cancer ----------------------------------------------------------------------------------------
+# Isa paper amino acids cancer ----
 
-library(metafor)
+# p-value adjustment
 library(readxl)
-t1 <- read_xlsx("Forest Isa.xlsx", n_max = 114)
-#t1 <- read.csv("Forest plots Isa.csv")
+t1 <- read_xlsx("Forest Isa.xlsx", sheet = 3)
 
-rowvec <- t1$spacing
+class(t1$trendtest)
+
+p.raw.chisq   <- t1$probchisq #%>% na.omit
+p.fdr.chisq   <- p.adjust(t1$probchisq, method = "fdr") #%>% na.omit
+p.bonf.chisq  <- p.adjust(t1$probchisq, method = "bonferroni") #%>% na.omit
+
+p.raw.trend   <- t1$trendtest #%>% na.omit
+p.fdr.trend   <- p.adjust(t1$trendtest, method = "fdr") #%>% na.omit
+p.bonf.trend  <- p.adjust(t1$trendtest, method = "bonferroni") #%>% na.omit
+
+df <- cbind(Cancer = t1$Cancer, Parameter = t1$Parameter, 
+            p.raw.chisq, p.fdr.chisq, p.bonf.chisq, p.raw.trend, p.fdr.trend, p.bonf.trend)
+
+#write.csv(df, "FDR adjustment.csv")
+
+# extract FDR adjusted p-values
+# colorectal
+p.adjust <- round(as.numeric(na.omit(df[1:144, 7])), 3)
+
+# Plots
+
+t4 <- read_xlsx("Forest Isa.xlsx", n_max = 144)
+
+# three groups are rows 1-48, 49-96, 97-144
+# lines needed: 48 obs + 13 spaces = 61
+vec <- 1:63
+# spaces: 6 groups of 2 plus one = 13
+spaces <- c(1, 8:9, 16:17, 24:25, 32:33, 40:41, 48:49, 56:57) # spaces
+p.pos  <- c(1, 9, 17, 25, 33, 41, 49, 57)
+
+# "All quintiles" data points only
+points <- rep(18, 144)
+points[seq(1, 144, 6)] <- 5
+
+# the row vector should be length 48
+rowvec <- rev(vec[-spaces])
+y.lim <- c(1, max(rowvec) + 3)
+top <- max(rowvec) + 2
+
+# function to add p-trends
+plabs <- function(x) as.expression(bquote(italic(P)~ "-trend =" ~ .(x) ))
 
 dev.off()
-# mgp controls distance between axis, labels and title
-par(mgp = c(1.5,0.3,0), mar=c(3,4,0,2))
-forest(slab = t1$cmpd,
-       x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
-       ilab = t1$Cases, ilab.xpos = 0.45, ilab.pos = 4,
-       refline = 1, rows = rowvec,
-       xlab = "Mulitivariable-adjusted HR",
-       pch = 18, psize = 1.5, lwd = 0.6,
-       #cex = 0.3,
-       cex.lab = 0.4, cex.axis = 0.4,
-       xlim = c(0.2, 1.4),
-       ylim = c(4, max(rowvec) + 3)
-       )
+par(mfrow=c(1,3))
 
-# Add title text
-text(1.4, max(rowvec) + 2, "HR [95% CI]", cex = 0.4, pos = 2)
-text(0.2, max(rowvec) + 2, "Amino acid", cex = 0.4, pos=4)
-text(0.45, max(rowvec) + 2, "Cases, all n = 6921 / quartiles 1-5", cex = 0.4, pos=4)
+# Alanine - hypoxanthine
+par(mar=c(5,4,0,1))
+forest(x = t4$HR, ci.ub = t4$high, ci.lb = t4$low, refline=1, rows = rowvec,
+       ilab = t4$Cases, ilab.xpos = 0.45, ilab.pos = 4, ylim = y.lim, cex = 1, efac = 0.3,
+       xlab="", psize = 1.5, xlim=c(0.1, 1.6), slab= t4$cmpd, pch = points, subset = 1:48)
+# add P-trends
+text(1.6, p.pos, sapply(rev(p.adjust[1:8]), plabs), pos = 2)
+# add titles
+text(0.1, top, "Amino acid", pos=4)
+text(0.45, top, "Cases, quintiles 1-5 (total n = 6921)", pos = 4)
+text(1.6, top, "HR [95% CI]", pos = 2)
+
+# Isoleucine - threonine
+par(mar=c(5,4,0,1))
+forest(x = t4$HR, ci.ub = t4$high, ci.lb = t4$low, refline = 1, 
+       xlab="Multivariable-adjusted hazard ratio", psize = 1.5,
+       ilab = t4$Cases, ilab.xpos = 0.45, ilab.pos = 4, pch = points,
+       cex = 1, rows = rowvec, efac = 0.3, ylim= y.lim, xlim=c(0.1, 1.6), subset=49:96, slab= t4$cmpd)
+# p-trends
+text(1.6, p.pos, sapply(rev(p.adjust[9:16]), plabs), pos = 2)
+# titles
+text(0.1, top, "Amino acid", pos=4)
+text(0.45, top, "Cases, quintiles 1-5 (total n = 6921)", pos = 4)
+text(1.6, top, "HR [95% CI]", pos = 2)
+
+# Tryptophan - total proteins
+par(mar=c(5,4,0,2))
+forest(x = t4$HR, ci.ub = t4$high, ci.lb = t4$low, refline = 1, xlab="", psize = 1.5, pch = points,
+       xlim=c(0.1, 1.6), subset=97:144, cex = 1, ilab = t4$Cases, efac = 0.3,
+       ilab.xpos = 0.45, ilab.pos = 4, rows = rowvec, ylim= y.lim, slab= t4$cmpd)
+# p-trends
+text(1.6, p.pos, sapply(rev(p.adjust[17:24]), plabs), pos = 2)
+# titles
+text(0.1, top, "Amino acid", pos=4)
+text(0.1, 32, "Groups", pos=4, font=3)
+text(0.45, top, "Cases, quintiles 1-5 (total n = 6921)", pos = 4)
+text(1.6, top, "HR [95% CI]", pos = 2)
+
 
 
