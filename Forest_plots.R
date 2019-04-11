@@ -1,6 +1,6 @@
 # Forest plots 
 
-# 1. Neil, CRC paper
+# 1. Neil, CRC and soft drinks papers
 # 2. Nathalie, manuscript and group meeting slides
 # 3. Marc, section day slides
 # 4. Isabel, manuscript on amino acids and cancer
@@ -191,6 +191,77 @@ text(1, c(7,11,15,21,27,30), c("0.22","0.37","0.93","0.54", "0.57", "Prox-dist-\
 text(1.2, c(7,11,15,21,27,30), c("0.14","0.16","0.91","0.4", "0.76", "Prox-dist"), cex = 1, pos=2)
 text(1.1, 31.5, expression(paste(italic(P),"-Heterogeneity" )))
 abline(h = 29)
+
+# Soft drinks April 2019
+
+t2 <- read_xlsx("Forest plots/forest soft drinks.xlsx", sheet = 1)
+
+# Define row spacings
+rowvec <- rev(c(1:2, 5:6, 9:11, 14:16, 19:20, 23)) + 1
+pointvec <- 18
+line <- 27
+# can use efac=0 to suppress vertical lines on CIs
+
+dev.off()
+par(mfrow=c(1, 4))
+
+# Separate plot for row names
+
+par(mar=c(5,7,0,1))
+plot(1, type="n", 
+     axes = F, ann = F, ylim=c(1, line), xlim = c(0.9, 1.2))
+text(1.03, rowvec, t2$category[1:13], pos=4)
+text(1, c(4,8,13,18,22), 
+     c("Alcohol consumption", "Physical activity index", "Body mass index (kg/m2)",
+       "Smoking status", "Sex"), 
+     #cex = 1, 
+     pos=4)
+abline(h = 25)
+
+# Soft drinks
+par(mar=c(5,0,0,1))
+forest(x = t2$hr, ci.ub = t2$high, ci.lb = t2$low, rows = rowvec, ylim=c(1, line), 
+       refline=1, efac = 0,
+       xlab="HR [95% CI]", psize= rep(1.5, nrow(t2)), xlim=c(0.95,1.6), 
+       cex=1, 
+       subset=1:13, cex.lab = 0.8,
+       slab = NA,
+       #slab=t2$category, 
+       pch = 18)
+
+text(1, 26, "Soft drinks", cex = 1, pos = 4)
+text(1.6, 26, "HR [95% CI]", cex = 1, pos = 2)
+text(1.6, c(1,5,9,14,19), rev(c("P-interaction = 0.91", "P-interaction = 0.05", "P-interaction = 0.03",
+                                "P-interaction = 0.42", "P-interaction = 0.02")), pos = 2, cex = 1)
+
+# Soft drinks artificially sweetened
+par(mar=c(5,4,0,1))
+forest(x = t2$hr, ci.ub = t2$high, ci.lb = t2$low, rows = rowvec, ylim=c(1,27), 
+       refline=1, efac = 0,
+       xlab="HR [95% CI]", cex.lab = 0.8, psize= rep(1.5, nrow(t2)), xlim=c(0.9,1.9), 
+       cex=1, 
+       subset=14:26, #slab=t2$category, 
+       slab = NA,
+       pch = 18)
+
+text(1, 26, "Soft drinks, artificially sweetened", cex = 1, pos = 4)
+text(1.9, 26, "HR [95% CI]", cex = 1, pos = 2)
+text(1.9, c(1,5,9,14,19), rev(c("P-interaction = 0.17", "P-interaction = 0.002", "P-interaction = 0.55",
+                                "P-interaction = 0.04", "P-interaction = 0.19")), pos = 2, cex = 1)
+
+# Soft drinks sugar sweetened
+par(mar=c(5,4,0,2))
+forest(x = t2$hr, ci.ub = t2$high, ci.lb = t2$low, rows = rowvec, ylim=c(1,27), 
+       refline=1, efac = 0,
+       xlab="HR [95% CI]", psize= rep(1.5, nrow(t2)), xlim=c(0.9,1.9),
+       cex=1, subset=27:39, #slab=t2$category, 
+       slab = NA, cex.lab = 0.8,
+       pch = 18)
+
+text(1, 26, "Soft drinks, sugar sweetened", cex = 1, pos = 4)
+text(1.9, 26, "HR [95% CI]", cex = 1, pos = 2)
+text(1.9, c(1,5,9,14,19), rev(c("P-interaction = 0.71", "P-interaction = 0.38", "P-interaction = 0.002",
+                                "P-interaction = 0.47", "P-interaction = 0.68")), pos = 2, cex = 1)
 
 # Nathalie 1st draft --------------------------------------------------------------------------------------------
 
