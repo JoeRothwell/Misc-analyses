@@ -40,6 +40,7 @@ HCC.figs <- function(lev1 = F, type = c("correlation", "scores", "loadings")) {
   
   # Run PCA
   discpca <- prcomp(log(discs.impute), scale. = T)
+  print(summary(discpca))
   
   # Histogram of follow-up time
   hist(meta$Tfollowup, breaks = 20, col="dodgerblue", xlab = "Follow-up time (years)", 
