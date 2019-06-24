@@ -39,13 +39,9 @@ HCC.figs <- function(lev1 = F, type = c("correlation", "scores", "loadings")) {
   discs.impute <- na.aggregate(discs, FUN = median)
   
   # Run PCA
-<<<<<<< HEAD
-  discpca <- prcomp(log(discs.impute), scale. = T)
-  print(summary(discpca))
-=======
   discpca <- prcomp(log2(discs.impute), scale. = T)
->>>>>>> e4c9de241e62f6141cd6e754d927b29b0322a6fe
-  
+  print(summary(discpca))
+
   # Histogram of follow-up time
   hist(meta$Tfollowup, breaks = 20, col="dodgerblue", xlab = "Follow-up time (years)", 
        main="Distribution follow-up time")
