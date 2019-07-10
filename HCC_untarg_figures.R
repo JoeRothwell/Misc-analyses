@@ -49,7 +49,7 @@ HCC.figs <- function(lev1 = F, type = c("correlation", "scores", "loadings")) {
   # Extract scores from object and join to follow-up data. Set control follow up time to corresponding case
   dfscores <- data.frame(pair = meta$Match_Caseset, TF = meta$Tfollowup, HCC = meta$Caselive_Crs, discpca$x) %>% 
     
-    #set follow up time of controls to that of corresponding case
+    #set follow up time of controls to that of corresponding case. First set control follow up times to zero
     mutate(TF1 = ifelse(HCC == 1, TF, 0)) %>% group_by(pair) %>%
     mutate(TF2 = max(TF1), cats = cut(TF2, breaks=c(0,4,8,12,16), 
                           labels = c("0 to 4 years", "4 to 8 years", "8 to 12 years", "12 to 16 years")),
