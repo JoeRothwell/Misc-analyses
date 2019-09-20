@@ -13,8 +13,13 @@ library(metafor)
 library(tidyverse)
 data(dat.bcg)
 dat <- escalc(measure="RR", ai=tpos, bi=tneg, ci=cpos, di=cneg, data=dat.bcg)
+
+dat$yi[2] <- NA
+
+options(na.action = "na.pass")
 forest(dat$yi, #vi=NA, #sei=NA,
        dat$vi, slab=paste(dat$author, dat$year, sep=", "), transf=exp,
+       col = c("black", "grey", rep("black", 11)),
        alim=c(0,2), steps=5, xlim=c(-2.5,4), refline=1, cex=.9)
 
 # Neil Table 2 -----------------------------------------------------------------------------------------------------
@@ -518,54 +523,75 @@ library(tidyverse)
 library(metafor)
 #Table 1
 t1 <- read.csv("Forest Marc1.csv")
-rowvec <- t1$spacing
+rowvec <- t1$spacing + 1
 
 par(mar=c(4,4,1,2))
-forest(slab = t1$param,
-       x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
-       ilab = t1[, 2:4], ilab.xpos = c(-5.5, -3.5, -1.5), ilab.pos = 4,
+forest(x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
+       slab = NA,
+       ilab = t1[, 2:4], ilab.xpos = c(-6, -4, -2), ilab.pos = 4,
        refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
        pch = 18, psize = 1.5,
-       xlim = c(-8, 11),
-       ylim = c(1, max(rowvec) + 3))
+       xlim = c(-8, 12),
+       ylim = c(1, max(rowvec) + 4))
+
+par("usr")
+text(-8, c(15, 9, 5), unique(t1$param)[-2], pos = 4)
+text(c(-4, -2), 17, c("Total N", "Recurrent N"), pos = 4)
+text(12, 17, "HR [95% CI]", pos = 2)
 
 #Table 2
-t2 <- read_csv("Forest Marc2.csv")
-rowvec <- t2$spacing
+t2 <- read.csv("Forest Marc2.csv")
+rowvec <- t2$spacing + 1
 
 par(mar=c(4,4,1,2))
 forest(slab = t2$type,
        x = t2$HR, ci.ub = t2$high, ci.lb = t2$low, 
-       ilab = t1[, 6:7], ilab.xpos = c(-1,-0.5),
+       ilab = t2[, 6:7], ilab.xpos = c(-1.2,-0.5), ilab.pos = 4,
        refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
        pch = 18, psize = 1.5,
        xlim = c(-3,3),
        ylim = c(1, max(rowvec) + 3))
 
+text(c(-1.2, -0.5), 17, c("Total N", "Recurrent N"), pos = 4)
+text(3, 17, "HR [95% CI]", pos = 2)
+
 #Table 3
 t3 <- read.csv("Forest Marc3a.csv")
-rowvec <- t3$spacing
+rowvec <- t3$spacing - 1
 labeldf <- t3[, c(2,7,8)]
-colvec <- rev(c("white", rep("black", 3), "white", rep("black", 3), "white", rep("black", 11)))
+#colvec <- rev(c("white", rep("black", 3), "white", rep("black", 3), "white", rep("black", 11)))
 colvec <- rev(c(NA, rep("black", 3), NA, rep("black", 3), NA, rep("black", 11)))
 
+# function to add p-trends (* instead of ~ to remove space)
+plabs <- function(x) as.expression(bquote(italic(p) * "-trend =" ~ .(x) ))
+
+options(na.action = "na.pass")
 #Sets margins (bottom, left, top, right)
 par(mar=c(4,4,1,2))
-forest(slab = t3$type,
-       x = t3$HR, ci.ub = t3$high, ci.lb = t3$low, 
-       ilab = labeldf, ilab.xpos = c(-1.7, -0.9, -0.3),
+forest(x = t3$HR, ci.ub = t3$high, ci.lb = t3$low,
+       slab = NA,
+       ilab = labeldf, ilab.xpos = c(-1.9, -1, -0.5), ilab.pos = 4,
        refline = 1, rows = rowvec,
        xlab = "Mulitivariable-adjusted HR",
        pch = 18, psize = 1.5,
        col = colvec,
-       xlim =c(-3, 3.75),
-       ylim = c(1, max(rowvec) + 3))
+       xlim =c(-2.5, 3.75),
+       ylim = c(1, max(rowvec) + 4))
 
-text(3.75, c(2, 8, 14, 19, 25), 
+text(c(-1, -0.5), 31, c("Total N", "Recurrent N"), pos = 4)
+text(3.75, 31, "HR [95% CI]", pos = 2)
+text(-2.5, c(5, 11, 17, 23, 29), unique(t3$type)[-2], pos = 4)
+
+text(3.75, c(1, 7, 13, 18, 24), 
      c("p-trend = 0.5", "p-trend = 0.69", "p-trend = 0.01", "p-trend = 0.01", "p-trend = 0.09"), 
      cex = 1, pos = 2)
+
+text(3.75, c(1, 7, 13, 18, 24), labels = sapply(c(0.5, 0.69, 0.01, 0.09), plabs),
+                                                cex = 1, pos = 2)
+
+
 
 # Isa paper amino acids cancer ----
 
