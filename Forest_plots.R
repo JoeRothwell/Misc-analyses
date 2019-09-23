@@ -521,16 +521,17 @@ text(c(-1.2, 0.2), max(femalerows) + 2, c("Cancer", "Cases"), cex = 0.8, pos=4)
 # Marc section day ----------------------------------------------------------------------------------------
 library(tidyverse)
 library(metafor)
-#Table 1
-t1 <- read.csv("Forest Marc1.csv")
+# Table 1 (need to specify encoding for special character on PC)
+t1 <- read.csv("Forest Marc1.csv", encoding = "UTF-8")
 rowvec <- t1$spacing + 1
 
+#svg(filename = "F1.svg", width = 8, height = 6)
 par(mar=c(4,4,1,2))
 forest(x = t1$HR, ci.ub = t1$high, ci.lb = t1$low, 
        slab = NA,
        ilab = t1[, 2:4], ilab.xpos = c(-6, -4, -2), ilab.pos = 4,
        refline = 1, rows = rowvec,
-       xlab = "Mulitivariable-adjusted HR",
+       xlab = "Multivariable-adjusted HR",
        pch = 18, psize = 1.5,
        xlim = c(-8, 12),
        ylim = c(1, max(rowvec) + 4))
@@ -539,23 +540,27 @@ par("usr")
 text(-8, c(15, 9, 5), unique(t1$param)[-2], pos = 4)
 text(c(-4, -2), 17, c("Total N", "Recurrent N"), pos = 4)
 text(12, 17, "HR [95% CI]", pos = 2)
+#dev.off()
 
 #Table 2
+
 t2 <- read.csv("Forest Marc2.csv")
 rowvec <- t2$spacing + 1
 
+#svg(filename = "F2.svg", width = 9, height = 5)
 par(mar=c(4,4,1,2))
 forest(slab = t2$type,
        x = t2$HR, ci.ub = t2$high, ci.lb = t2$low, 
        ilab = t2[, 6:7], ilab.xpos = c(-1.2,-0.5), ilab.pos = 4,
        refline = 1, rows = rowvec,
-       xlab = "Mulitivariable-adjusted HR",
+       xlab = "Multivariable-adjusted HR",
        pch = 18, psize = 1.5,
        xlim = c(-3,3),
        ylim = c(1, max(rowvec) + 3))
 
 text(c(-1.2, -0.5), 17, c("Total N", "Recurrent N"), pos = 4)
 text(3, 17, "HR [95% CI]", pos = 2)
+#dev.off()
 
 #Table 3
 t3 <- read.csv("Forest Marc3a.csv")
@@ -569,12 +574,13 @@ plabs <- function(x) as.expression(bquote(italic(p) * "-trend =" ~ .(x) ))
 
 options(na.action = "na.pass")
 #Sets margins (bottom, left, top, right)
+#svg(filename = "F3.svg", width = 10, height = 8)
 par(mar=c(4,4,1,2))
 forest(x = t3$HR, ci.ub = t3$high, ci.lb = t3$low,
        slab = NA,
        ilab = labeldf, ilab.xpos = c(-1.9, -1, -0.5), ilab.pos = 4,
        refline = 1, rows = rowvec,
-       xlab = "Mulitivariable-adjusted HR",
+       xlab = "Multivariable-adjusted HR",
        pch = 18, psize = 1.5,
        col = colvec,
        xlim =c(-2.5, 3.75),
@@ -583,13 +589,10 @@ forest(x = t3$HR, ci.ub = t3$high, ci.lb = t3$low,
 text(c(-1, -0.5), 31, c("Total N", "Recurrent N"), pos = 4)
 text(3.75, 31, "HR [95% CI]", pos = 2)
 text(-2.5, c(5, 11, 17, 23, 29), unique(t3$type)[-2], pos = 4)
-
-text(3.75, c(1, 7, 13, 18, 24), 
-     c("p-trend = 0.5", "p-trend = 0.69", "p-trend = 0.01", "p-trend = 0.01", "p-trend = 0.09"), 
-     cex = 1, pos = 2)
-
-text(3.75, c(1, 7, 13, 18, 24), labels = sapply(c(0.5, 0.69, 0.01, 0.09), plabs),
+text(3.75, c(1, 7, 13, 18, 24), labels = sapply(c(0.5, 0.69, 0.01, 0.01, 0.09), plabs),
                                                 cex = 1, pos = 2)
+
+#dev.off()
 
 
 
