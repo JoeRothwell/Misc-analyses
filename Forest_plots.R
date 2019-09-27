@@ -518,7 +518,7 @@ text(3.7, max(femalerows) + 2, "HR [95% CI]", cex = 0.8, pos = 2)
 text(c(-1.2, 0.2), max(femalerows) + 2, c("Cancer", "Cases"), cex = 0.8, pos=4)
 
 
-# Marc section day ----------------------------------------------------------------------------------------
+# Marc section day paper ----------------------------------------------------------------------------------------
 library(tidyverse)
 library(metafor)
 # Table 1 (need to specify encoding for special character on PC)
@@ -563,18 +563,13 @@ text(3, 17, "HR [95% CI]", pos = 2)
 #dev.off()
 
 #Table 3
-t3 <- read.csv("Forest Marc3a.csv")
-rowvec <- t3$spacing - 1
+t3 <- read.csv("Forest Marc3a_noQ4.csv")
+rowvec <- t3$spacing
 labeldf <- t3[, c(2,7,8)]
-#colvec <- rev(c("white", rep("black", 3), "white", rep("black", 3), "white", rep("black", 11)))
-colvec <- rev(c(NA, rep("black", 3), NA, rep("black", 3), NA, rep("black", 11)))
+topf <- max(rowvec) # position of top point
 
-# function to add p-trends (* instead of ~ to remove space)
-plabs <- function(x) as.expression(bquote(italic(p) * "-trend =" ~ .(x) ))
-
-options(na.action = "na.pass")
 #Sets margins (bottom, left, top, right)
-#svg(filename = "F3.svg", width = 10, height = 8)
+svg(filename = "F3_new.svg", width = 10, height = 7.5)
 par(mar=c(4,4,1,2))
 forest(x = t3$HR, ci.ub = t3$high, ci.lb = t3$low,
        slab = NA,
@@ -582,17 +577,19 @@ forest(x = t3$HR, ci.ub = t3$high, ci.lb = t3$low,
        refline = 1, rows = rowvec,
        xlab = "Multivariable-adjusted HR",
        pch = 18, psize = 1.5,
-       col = colvec,
        xlim =c(-2.5, 3.75),
-       ylim = c(1, max(rowvec) + 4))
+       ylim = c(1, topf + 4))
 
-text(c(-1, -0.5), 31, c("Total N", "Recurrent N"), pos = 4)
-text(3.75, 31, "HR [95% CI]", pos = 2)
-text(-2.5, c(5, 11, 17, 23, 29), unique(t3$type)[-2], pos = 4)
-text(3.75, c(1, 7, 13, 18, 24), labels = sapply(c(0.5, 0.69, 0.01, 0.01, 0.09), plabs),
+text(c(-1, -0.5), topf + 3, c("Total N", "Recurrent N"), pos = 4)
+text(3.75, topf + 3, "HR [95% CI]", pos = 2)
+text(-2.5, c(5, 10, 15, 21, topf + 1), rev(unique(t3$type)[-2]), pos = 4)
+
+# function to add p-trends (* instead of ~ to remove space)
+plabs <- function(x) as.expression(bquote(italic(p) * "-trend =" ~ .(x) ))
+text(3.75, c(1, 6, 11, 16, 22), labels = sapply(c(0.5, 0.69, 0.01, 0.01, 0.09), plabs),
                                                 cex = 1, pos = 2)
 
-#dev.off()
+dev.off()
 
 
 
