@@ -93,15 +93,17 @@ dfscores0 <- HCC.figs(type = "scores", lev1 = T)
 # Fig 3A: Single scores plot with cases and controls coloured only
 library(ggplot2)
 library(scales)
-ggplot(dfscores0, aes(x=PC1, y=PC2, colour=HCC)) + geom_point() + theme_bw() +
-  scale_shape_manual(values= c(17,19)) +
+ggplot(dfscores0, aes(x=PC1, y=PC2, shape=HCC, colour = HCC)) + geom_point() + theme_bw() +
+  scale_shape_manual(values= c(2,16)) +
   xlab("Score on PC1") + ylab("Score on PC2") + geom_vline(xintercept=0, linetype = "dashed") +
   scale_y_continuous(labels = number_format(accuracy = 0.1)) +
   geom_hline(yintercept=0, linetype = "dashed") +
   theme(legend.position = "none")
 
 # Fig 3B: Follow-up time against PC1 with fitted lines
-ggplot(dfscores0, aes(x=TF2, y=PC1, colour=HCC)) + geom_point() + theme_bw() + geom_smooth(method=lm) +
+ggplot(dfscores0, aes(x=TF2, y=PC1, shape=HCC, colour = HCC)) + geom_point() + theme_bw() + 
+  geom_smooth(method = lm) +
+  scale_shape_manual(values= c(2,16)) +
   xlab("Follow-up time (years)") + ylab("Score on PC1")  +
   theme(legend.position = "none")
 
@@ -109,7 +111,9 @@ ggplot(dfscores0, aes(x=TF2, y=PC1, colour=HCC)) + geom_point() + theme_bw() + g
 contr <- HCC.figs(type = "contributions")
 contr0 <- HCC.figs(type = "contributions", lev1 = T)
 
-ggplot(contr0, aes(x = Compound, y=val, fill=PC)) + geom_bar(stat="identity") + coord_flip() + theme_bw() +
+ggplot(contr0, aes(x = Compound, y=val)) + geom_bar(stat="identity") + 
+  coord_flip() + 
+  theme_bw() +
   facet_grid(PC ~ .  , scales = "free_y") + ylab("Relative importance to PC") + 
   xlab("Components contributing most to PC") +
   theme(legend.position = "none")
