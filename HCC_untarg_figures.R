@@ -1,115 +1,131 @@
 # Function to prepare data and make figures for HCC manuscript Stepien et al
+library(tidyverse)
+cofhcc <- readRDS("HCC coffee biomarkers and metadata.rds")
+cmpds   <- read_csv("HCC_46_disc_levels.csv") # levels 1-3 annotated
 
-HCC.figs <- function(lev1 = F, type = c("correlation", "scores", "loadings")) {
-  
-  library(tidyverse)
-  library(pheatmap)
-  
-  # Data processing
-  
-  # Get coffee biomarker data and metadata
-  cofhcc <- readRDS("HCC coffee biomarkers and metadata.rds") %>% separate(LabID, into=c("ctr","no"), sep="_", convert=T)
-  
-  # HCC discriminant data (levels 1-3 annotated)
+pca.data <- function(dat, ints, lev1 = F, time.start = NULL, type = c("correlation", "scores", "loadings")) {
 
-  pcadata <- read_csv("HCC 46 discriminants.csv") %>% separate(Sample, into=c("ctr","no"), sep="_", convert=T)
-    
-  # optionally Level 1 annotated only (from Table 2 manuscript)
-  if(lev1 == T){
-    pcadata0 <- pcadata %>% select(ctr:Retinol, `C19H28O2-sulfate (C19 steroid-sulfate)`, Glycerophosphocholine, 
-                            CEHC, Creatine, Tyrosine, `N1-Acetylspermidine`, Isatin, `p-Hydroxyphenyllactic acid`,
-                            Sphingosine, `L,L-Cyclo(leucylprolyl)`, `Glycochenodeoxycholic acid`, `Glycocholic acid`,
-                            `7-methylguanine`)
-      } else {
-    pcadata0 <- pcadata
-      }
+  # Split columns for both intensities and metadata
+  cofhcc <- dat %>% separate(LabID, into=c("ctr","no"), sep="_", convert=T)
+  ints <- cmpds %>% separate(Sample, into=c("ctr","no"), sep="_", convert=T)
+  ints1 <- if(lev1 == T) ints %>% select(ctr : Label, starts_with("L1_")) else ints
   
   # Create follow up time variable and plot as a histogram
-  meta <- inner_join(cofhcc, pcadata0, by="no") %>% mutate(Tfollowup = Agexit_Frst - Age_Recr)
+  meta <- inner_join(cofhcc, ints1, by="no") %>% 
+    mutate(Tfollowup = Agexit_Frst - Age_Recr,
+           Tfollowup2 = ifelse(Caselive_Crs == 1, Tfollowup, 0)) %>%
+    group_by(Match_Caseset) %>%
+    mutate(Tfollowup3 = max(Tfollowup2))
+  
+  # Subset by follow up time if specified
+  meta <- if(!is.null(time.start)) meta %>% filter(Tfollowup3 > time.start) else meta
+  print(paste(nrow(meta), "observations included"))
   
   # subset discriminants for PCA
-  if(lev1 == F){
-    discs <- meta %>% select(Retinol:CEHC) %>% as.matrix
-    } else {
-    discs <- meta %>% select(Retinol:`7-methylguanine`) %>% as.matrix
-  }
+  discs <- if(lev1 == F) meta %>% select(L1_Retinol:L1_CEHC) else meta %>% select(starts_with("L1_"))
   
-  # impute with median
+  # impute with median and run PCA
   library(zoo)
-  discs.impute <- na.aggregate(discs, FUN = median)
-  
-  # Run PCA
-  discpca <- prcomp(log2(discs.impute), scale. = T)
-  print(summary(discpca))
+  discs1 <- na.aggregate(as.matrix(discs), FUN = median)
+  pca <- prcomp(log2(discs1), scale. = T)
+  print(summary(pca))
 
   # Histogram of follow-up time
   hist(meta$Tfollowup, breaks = 20, col="dodgerblue", xlab = "Follow-up time (years)", 
        main="Distribution follow-up time")
   
-  # Extract scores from object and join to follow-up data. Set control follow up time to corresponding case
-  dfscores <- data.frame(pair = meta$Match_Caseset, TF = meta$Tfollowup, HCC = meta$Caselive_Crs, discpca$x) %>% 
-    
-    #set follow up time of controls to that of corresponding case. First set control follow up times to zero
-    mutate(TF1 = ifelse(HCC == 1, TF, 0)) %>% group_by(pair) %>%
-    mutate(TF2 = max(TF1), cats = cut(TF2, breaks=c(0,4,8,12,16), 
-                          labels = c("0 to 4 years", "4 to 8 years", "8 to 12 years", "12 to 16 years")),
-                           cats2 = cut(TF2, breaks=c(0,2,6,16),
-                          labels = c("0 to 2 years", "2 to 6 years", "6 to 16 years"))) #%>% select(-(PC3:PC46))
+  # # Extract scores from object and join to follow-up data. Set control follow up time to corresponding case
+  # output <- data.frame(pair = meta$Match_Caseset, TF = meta$Tfollowup, HCC = meta$Caselive_Crs, pca$x) %>% 
+  #   
+  #   #set follow up time of controls to that of corresponding case. First set control follow up times to zero
+  #   mutate(TF1 = ifelse(HCC == 1, TF, 0)) %>% 
+  #   group_by(pair) %>%
+  #   mutate(TF2 = max(TF1), cats = cut(TF2, breaks=c(0,4,8,12,16), 
+  #                         labels = c("0 to 4 years", "4 to 8 years", "8 to 12 years", "12 to 16 years")),
+  #                          cats2 = cut(TF2, breaks=c(0,2,6,16),
+  #                         labels = c("0 to 2 years", "2 to 6 years", "6 to 16 years"))) #%>% select(-(PC3:PC46))
   
-  dfscores$HCC <- factor(dfscores$HCC, labels = c("Controls", "Cases"))
+  # New
+  output <- data.frame(meta, pca$x)
   
-  if(type == "scores") return(dfscores)
+  output$HCC <- factor(output$Caselive_Crs, labels = c("Controls", "Cases"))
   
+  if(type == "scores") return(output)
+ 
   # plot loadings PC1 vs PC2
-  # plot(discpca$rotation[, 1], discpca$rotation[, 2], pch=19, col="dodgerblue")
-  # abline(h=0, v=0)
+  # plot(pca$rotation[, 1], pca$rotation[, 2], pch=19, col="dodgerblue")
   
   # Calculate contributions to PC1 and PC2. Get absolute values of rotation and convert to proportions, join names, plot
   # do not use absolute values to get positive and negative contributions
-  
-  aload <- discpca$rotation
+  aload <- pca$rotation
   contributions <- sweep(aload, 2, colSums(aload), "/") %>% data.frame %>% rownames_to_column(var="Compound")
   
   contr <- contributions %>% select(Compound:PC2) %>% gather(PC, val, -Compound) %>% 
     mutate(absval = abs(val), sign = ifelse(val == absval, "Pos", "Neg")) %>% 
-    #Take 25 most contributing compounds only
+  #Take 25 most contributing compounds only
     group_by(PC) %>% top_n(n=25, wt=absval)
   
   if(type == "contributions") return(contr)
   
   # Remove labels and log transform
-  heatdata <- pcadata[, -(1:3)] %>% log2
+  heatdata <- ints[, -(1:3)] %>% log2
   cormat <- cor(heatdata, use = "pairwise.complete.obs")
   
   if(type == "correlation") return(cormat)
 }
 
 
-# Plot figures for manuscript (supp 3A, 3B, 3C) ----
+# Get data for all observations, follow up time > 2, 4, and 10 years
 
-dfscores <- HCC.figs(type = "scores")
-dfscores0 <- HCC.figs(type = "scores", lev1 = T)
+all <- pca.data(cofhcc, cmpds, type = "scores")
+lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T)
+
+ts2 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 2)
+ts2.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 2)
+
+ts4 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 4)
+ts4.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 4)
+
+ts10 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 10)
+ts10.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 10)
+
+# Plot figures for manuscript (supp 3A, 3B, 3C) ----
 
 # Fig 3A: Single scores plot with cases and controls coloured only
 library(ggplot2)
 library(scales)
-ggplot(dfscores0, aes(x=PC1, y=PC2, shape=HCC, colour = HCC)) + geom_point() + theme_bw() +
+p1 <- ggplot(all, aes(x=PC1, y=PC2, shape=HCC, colour = HCC)) + geom_point() + theme_bw() +
   scale_shape_manual(values= c(2,16)) +
   xlab("Score on PC1") + ylab("Score on PC2") + geom_vline(xintercept=0, linetype = "dashed") +
   scale_y_continuous(labels = number_format(accuracy = 0.1)) +
   geom_hline(yintercept=0, linetype = "dashed") +
   theme(legend.position = "none")
 
+
 # Fig 3B: Follow-up time against PC1 with fitted lines
-ggplot(dfscores0, aes(x=TF2, y=PC1, shape=HCC, colour = HCC)) + geom_point() + theme_bw() + 
+p2 <- ggplot(all, aes(x=Tfollowup3, y=PC1, shape=HCC, colour = HCC)) + geom_point() + theme_bw() + 
   geom_smooth(method = lm) +
   scale_shape_manual(values= c(2,16)) +
   xlab("Follow-up time (years)") + ylab("Score on PC1")  +
   theme(legend.position = "none")
 
+# Plot different follow up time ranges
+p2          %>% ggsave(filename = "All_ftime0_15.png", height = 10, width = 15, units = "cm")
+p2 %+% lev1 %>% ggsave(filename = "Lev1_ftime0_15.png", height = 10, width = 15, units = "cm")
+
+p2 %+% ts2  %>% ggsave(filename = "All_ftime2_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts2.lev1 %>% ggsave(filename = "Lev1_ftime2_15.png", height = 10, width = 15, units = "cm")
+
+p2 %+% ts4 %>% ggsave(filename = "All_ftime4_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts4.lev1 %>% ggsave(filename = "Lev1_ftime4_15.png", height = 10, width = 15, units = "cm")
+
+p2 %+% ts10 %>% ggsave(filename = "All_ftime10_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts10.lev1 %>% ggsave(filename = "Lev1_ftime10_15.png", height = 10, width = 15, units = "cm")
+
+
 # Fig 3C: plot top 10 contributions for PC1, 2, 3. First prepare data then plot
-contr <- HCC.figs(type = "contributions")
-contr0 <- HCC.figs(type = "contributions", lev1 = T)
+contr <- pca.data(type = "contributions")
+contr0 <- pca.data(type = "contributions", lev1 = T)
 
 ggplot(contr0, aes(x = Compound, y=val)) + geom_bar(stat="identity") + 
   coord_flip() + 
