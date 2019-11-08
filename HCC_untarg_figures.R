@@ -80,14 +80,14 @@ pca.data <- function(dat, ints, lev1 = F, time.start = NULL, type = c("correlati
 all <- pca.data(cofhcc, cmpds, type = "scores")
 lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T)
 
-ts2 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 2)
-ts2.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 2)
+#ts2 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 2)
+#ts2.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 2)
 
 ts4 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 4)
 ts4.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 4)
 
-ts10 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 10)
-ts10.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 10)
+#ts10 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 10)
+#ts10.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 10)
 
 # Plot figures for manuscript (supp 3A, 3B, 3C) ----
 
@@ -101,6 +101,10 @@ p1 <- ggplot(all, aes(x=PC1, y=PC2, shape=HCC, colour = HCC)) + geom_point() + t
   geom_hline(yintercept=0, linetype = "dashed") +
   theme(legend.position = "none")
 
+# Plot different follow up time ranges
+p1          %>% ggsave(filename = "PC1_2_all.png", height = 10, width = 15, units = "cm")
+p1 %+% lev1 %>% ggsave(filename = "PC1_2_L1.png", height = 10, width = 15, units = "cm")
+
 
 # Fig 3B: Follow-up time against PC1 with fitted lines
 p2 <- ggplot(all, aes(x=Tfollowup3, y=PC1, shape=HCC, colour = HCC)) + geom_point() + theme_bw() + 
@@ -111,16 +115,18 @@ p2 <- ggplot(all, aes(x=Tfollowup3, y=PC1, shape=HCC, colour = HCC)) + geom_poin
 
 # Plot different follow up time ranges
 p2          %>% ggsave(filename = "All_ftime0_15.png", height = 10, width = 15, units = "cm")
-p2 %+% lev1 %>% ggsave(filename = "Lev1_ftime0_15.png", height = 10, width = 15, units = "cm")
+p2 %+% lev1 + ggsave(filename = "Lev1_ftime0_15.png", height = 10, width = 15, units = "cm")
 
-p2 %+% ts2  %>% ggsave(filename = "All_ftime2_15.png", height = 10, width = 15, units = "cm")
-p2 %+% ts2.lev1 %>% ggsave(filename = "Lev1_ftime2_15.png", height = 10, width = 15, units = "cm")
+#p2 %+% ts2  %>% ggsave(filename = "All_ftime2_15.png", height = 10, width = 15, units = "cm")
+#p2 %+% ts2.lev1 %>% ggsave(filename = "Lev1_ftime2_15.png", height = 10, width = 15, units = "cm")
 
-p2 %+% ts4 %>% ggsave(filename = "All_ftime4_15.png", height = 10, width = 15, units = "cm")
-p2 %+% ts4.lev1 %>% ggsave(filename = "Lev1_ftime4_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts4 %>% xlim(0, 15) +
+  ggsave(filename = "All_ftime4_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts4.lev1 %>% xlim(0, 15) +
+  ggsave(filename = "Lev1_ftime4_15.png", height = 10, width = 15, units = "cm")
 
-p2 %+% ts10 %>% ggsave(filename = "All_ftime10_15.png", height = 10, width = 15, units = "cm")
-p2 %+% ts10.lev1 %>% ggsave(filename = "Lev1_ftime10_15.png", height = 10, width = 15, units = "cm")
+#p2 %+% ts10 %>% ggsave(filename = "All_ftime10_15.png", height = 10, width = 15, units = "cm")
+#p2 %+% ts10.lev1 %>% ggsave(filename = "Lev1_ftime10_15.png", height = 10, width = 15, units = "cm")
 
 
 # Fig 3C: plot top 10 contributions for PC1, 2, 3. First prepare data then plot
