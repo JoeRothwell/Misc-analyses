@@ -1,7 +1,7 @@
 # Function to prepare data and make figures for HCC manuscript Stepien et al
 library(tidyverse)
 cofhcc <- readRDS("HCC coffee biomarkers and metadata.rds")
-cmpds   <- read_csv("HCC_46_disc_levels.csv") # levels 1-3 annotated
+cmpds  <- read_csv("HCC_46_disc_levels.csv") # levels 1-3 annotated
 
 pca.data <- function(dat, ints, lev1 = F, time.start = NULL, type = c("correlation", "scores", "loadings")) {
 
@@ -11,11 +11,12 @@ pca.data <- function(dat, ints, lev1 = F, time.start = NULL, type = c("correlati
   ints1 <- if(lev1 == T) ints %>% select(ctr : Label, starts_with("L1_")) else ints
   
   # Create follow up time variable and plot as a histogram
+  # Need to ungroup or grouping variable is readded with select()
   meta <- inner_join(cofhcc, ints1, by="no") %>% 
     mutate(Tfollowup = Agexit_Frst - Age_Recr,
            Tfollowup2 = ifelse(Caselive_Crs == 1, Tfollowup, 0)) %>%
     group_by(Match_Caseset) %>%
-    mutate(Tfollowup3 = max(Tfollowup2))
+    mutate(Tfollowup3 = max(Tfollowup2)) %>% ungroup()
   
   # Subset by follow up time if specified
   meta <- if(!is.null(time.start)) meta %>% filter(Tfollowup3 > time.start) else meta
@@ -63,7 +64,7 @@ pca.data <- function(dat, ints, lev1 = F, time.start = NULL, type = c("correlati
   contr <- contributions %>% select(Compound:PC2) %>% gather(PC, val, -Compound) %>% 
     mutate(absval = abs(val), sign = ifelse(val == absval, "Pos", "Neg")) %>% 
   #Take 25 most contributing compounds only
-    group_by(PC) %>% top_n(n=25, wt=absval)
+    group_by(PC) #%>% top_n(n=25, wt=absval)
   
   if(type == "contributions") return(contr)
   
@@ -73,7 +74,6 @@ pca.data <- function(dat, ints, lev1 = F, time.start = NULL, type = c("correlati
   
   if(type == "correlation") return(cormat)
 }
-
 
 # Get data for all observations, follow up time > 2, 4, and 10 years
 
@@ -102,8 +102,8 @@ p1 <- ggplot(all, aes(x=PC1, y=PC2, shape=HCC, colour = HCC)) + geom_point() + t
   theme(legend.position = "none")
 
 # Plot different follow up time ranges
-p1          %>% ggsave(filename = "PC1_2_all.png", height = 10, width = 15, units = "cm")
-p1 %+% lev1 %>% ggsave(filename = "PC1_2_L1.png", height = 10, width = 15, units = "cm")
+p1          %>% ggsave(filename = "Picture 1.png", height = 10, width = 15, units = "cm")
+p1 %+% lev1 %>% ggsave(filename = "Picture 2.png", height = 10, width = 15, units = "cm")
 
 
 # Fig 3B: Follow-up time against PC1 with fitted lines
@@ -113,36 +113,43 @@ p2 <- ggplot(all, aes(x=Tfollowup3, y=PC1, shape=HCC, colour = HCC)) + geom_poin
   xlab("Follow-up time (years)") + ylab("Score on PC1")  +
   theme(legend.position = "none")
 
+
+
 # Plot different follow up time ranges
-p2          %>% ggsave(filename = "All_ftime0_15.png", height = 10, width = 15, units = "cm")
-p2 %+% lev1 + ggsave(filename = "Lev1_ftime0_15.png", height = 10, width = 15, units = "cm")
+p2          %>% ggsave(filename = "Picture 3.png", height = 10, width = 15, units = "cm")
+p2 %+% lev1 + ggsave(filename = "Picture 4.png", height = 10, width = 15, units = "cm")
 
 #p2 %+% ts2  %>% ggsave(filename = "All_ftime2_15.png", height = 10, width = 15, units = "cm")
 #p2 %+% ts2.lev1 %>% ggsave(filename = "Lev1_ftime2_15.png", height = 10, width = 15, units = "cm")
 
-p2 %+% ts4 %>% xlim(0, 15) +
-  ggsave(filename = "All_ftime4_15.png", height = 10, width = 15, units = "cm")
-p2 %+% ts4.lev1 %>% xlim(0, 15) +
-  ggsave(filename = "Lev1_ftime4_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts4 + xlim(0, 15) + ggsave(filename = "Picture 5.png", height = 10, width = 15, units = "cm")
+p2 %+% ts4.lev1 + xlim(0, 15) + ggsave(filename = "Picture 6.png", height = 10, width = 15, units = "cm")
 
 #p2 %+% ts10 %>% ggsave(filename = "All_ftime10_15.png", height = 10, width = 15, units = "cm")
 #p2 %+% ts10.lev1 %>% ggsave(filename = "Lev1_ftime10_15.png", height = 10, width = 15, units = "cm")
 
 
 # Fig 3C: plot top 10 contributions for PC1, 2, 3. First prepare data then plot
-contr <- pca.data(type = "contributions")
-contr0 <- pca.data(type = "contributions", lev1 = T)
+contr <- pca.data(cofhcc, type = "contributions")
+contr0 <- pca.data(cofhcc, type = "contributions", lev1 = T)
 
-ggplot(contr0, aes(x = Compound, y=val)) + geom_bar(stat="identity") + 
-  coord_flip() + 
+# Line plot (formerly barplot, remove L1_ where necessary)
+p3 <- ggplot(contr0, aes(x = val, y = Compound)) + 
+  geom_segment(aes(x = 0, y = Compound, xend = val, yend = Compound), #size=1.5, 
+               lineend = "butt") + 
   theme_bw() +
-  facet_grid(PC ~ .  , scales = "free_y") + ylab("Relative importance to PC") + 
-  xlab("Components contributing most to PC") +
-  theme(legend.position = "none")
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point() + 
+  xlab("Relative importance to PC") +
+  facet_grid(. ~ PC  , scales = "free_x") + ylab("Relative importance to PC") + 
+  scale_y_discrete(label = function(x) str_replace(x, "L1_", "")) +
+  theme(legend.position = "none", plot.title = element_text(size = 18),
+        axis.title.y = element_blank(),
+        strip.text.x = element_text(size = 10),
+        panel.spacing = unit(1.5, "lines"))
 
-
-
-
+p3          %>% ggsave(filename = "Picture 8.png", height = 7, width = 20, units = "cm")
+p3 %+% contr + ggsave(filename = "Picture 7.png", height = 15, width = 20, units = "cm")
 
 # NOT USED ----
 # The following plots are experimental and not used in the manuscript.
@@ -197,7 +204,6 @@ write.csv(dfscores, "Discriminant PC scores and follow up time HCC.csv")
 library(ggplot2)
 library(RColorBrewer)
 data <- read.csv("Biocrates summary jan 2017.csv")
-
 
 ggplot(data, aes(x=OR, y=-log10(pval), colour=groups)) + geom_point() + theme_bw() +
   geom_hline(yintercept = -log10(0.05/23), linetype = "dashed") +
