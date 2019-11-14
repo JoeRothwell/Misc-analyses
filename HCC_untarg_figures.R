@@ -86,8 +86,8 @@ lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T)
 ts4 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 4)
 ts4.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 4)
 
-#ts10 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 10)
-#ts10.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 10)
+ts6 <- pca.data(cofhcc, cmpds, type = "scores", time.start = 6)
+ts6.lev1 <- pca.data(cofhcc, cmpds, type = "scores", lev1 = T, time.start = 6)
 
 # Plot figures for manuscript (supp 3A, 3B, 3C) ----
 
@@ -104,6 +104,7 @@ p1 <- ggplot(all, aes(x=PC1, y=PC2, shape=HCC, colour = HCC)) + geom_point() + t
 # Plot different follow up time ranges
 p1          %>% ggsave(filename = "Picture 1.png", height = 10, width = 15, units = "cm")
 p1 %+% lev1 %>% ggsave(filename = "Picture 2.png", height = 10, width = 15, units = "cm")
+p1 %+% lev1 + xlim(-14, 8) + ylim(-11, 7) + ggsave(filename = "Picture 2a.png", height = 10, width = 15, units = "cm")
 
 
 # Fig 3B: Follow-up time against PC1 with fitted lines
@@ -125,8 +126,8 @@ p2 %+% lev1 + ggsave(filename = "Picture 4.png", height = 10, width = 15, units 
 p2 %+% ts4 + xlim(0, 15) + ggsave(filename = "Picture 5.png", height = 10, width = 15, units = "cm")
 p2 %+% ts4.lev1 + xlim(0, 15) + ggsave(filename = "Picture 6.png", height = 10, width = 15, units = "cm")
 
-#p2 %+% ts10 %>% ggsave(filename = "All_ftime10_15.png", height = 10, width = 15, units = "cm")
-#p2 %+% ts10.lev1 %>% ggsave(filename = "Lev1_ftime10_15.png", height = 10, width = 15, units = "cm")
+p2 %+% ts6 + xlim(0, 15) + ggsave(filename = "Picture 5a.png", height = 10, width = 15, units = "cm")
+p2 %+% ts6.lev1 + xlim(0, 15) + ggsave(filename = "Picture 6a.png", height = 10, width = 15, units = "cm")
 
 
 # Fig 3C: plot top 10 contributions for PC1, 2, 3. First prepare data then plot
