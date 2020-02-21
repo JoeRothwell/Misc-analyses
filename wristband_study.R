@@ -56,9 +56,9 @@ colnames(logmat) <- cmpd.meta$Cmpd[include]
 
 # Correlation heatmap
 cormat <- cor(logmat)
-rownames(cormat) <- cmpd.meta$dat.sample_id[include]
+colnames(cormat) <- NULL
 library(corrplot)
-corrplot(cormat, method = "square", tl.col = "black", tl.cex = 0.8)
+corrplot(cormat, method = "square", tl.col = "black", tl.cex = 0.8, order = "hclust")
 
 # PCA of compound profiles
 pca <- prcomp(logmat, scale. = T)
@@ -67,6 +67,7 @@ place.day2 <- factor(meta$wristbands_urban_d2, labels = c("Rural", "Urban"))
 place.day3 <- factor(meta$wristbands_urban_d3, labels = c("Rural", "Urban"))
 place.day4 <- factor(meta$wristbands_urban_d4, labels = c("Rural", "Urban"))
 couple <- as.factor(meta$num_couple)
+id <- meta$Identifiant
 sex <- c(rep("M", 20), rep("F", 20))
 
 # With purrr
