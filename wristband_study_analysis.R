@@ -6,8 +6,9 @@ colnames(cormat) <- NULL
 library(corrplot)
 corrplot(cormat, method = "square", tl.col = "black", tl.cex = 0.8, order = "hclust")
 
-# PCA of compound profiles (France)
+# Individual PCAs: France
 pca <- prcomp(logmat, scale. = T)
+#pca2 <- prcomp(logmat2, scale. = T)
 place.day1 <- factor(meta$wristbands_urban_d1, labels = c("Rural", "Urban"))
 place.day2 <- factor(meta$wristbands_urban_d2, labels = c("Rural", "Urban"))
 place.day3 <- factor(meta$wristbands_urban_d3, labels = c("Rural", "Urban"))
@@ -16,17 +17,42 @@ couple <- as.factor(meta$num_couple)
 id <- meta$Identifiant
 sex <- c(rep("M", 20), rep("F", 20))
 
+library(pca3d)
+pca2d(pca, group = sex, legend = "topright", axe.titles = c("Score on PC1", "Score on PC2"))
+title("France, by sex")
+box()
+
+# Individual PCA Italy
+sex <- meta1$Gender
+pca0 <- prcomp(logmat0, scale. = T)
+pca2d(pca0, group = sex, legend = "topright", axe.titles = c("Score on PC1", "Score on PC2"))
+title("Italy, by sex")
+box()
+
 # Groups for both countries together
 sex1 <- c(sex, as.character(meta1$Gender))
 country <- c(rep("France", 40), rep("Italy", 31))
+pca2 <- prcomp(logmat2, scale. = T)
+pca2d(pca2, group = country, legend = "topright", axe.titles = c("Score on PC1", "Score on PC2"))
+title("All, by country")
+box()
 
 # With purrr
 #meta %>% select(contains("wristbands_u")) %>% map(function(x) factor(x, labels = c("Rural", "Urban")))
 
 # PCAs by different characteristics
-pca2d(pca, group = country)
-title("Profiles by Country")
+library(pca3d)
+#pca2d(pca)
+pca2d(pca2, group = country)
+title("Profiles by country, 40 compounds")
 box()
+
+plot(pca2)
+print(summary(pca2))
+
+aload <- pca$rotation
+contr <- sweep(aload, 2, colSums(aload), "/") %>% data.frame %>% 
+  rownames_to_column(var="cpd.code")
 
 pca2d(pca, group = sex1)
 title("Profiles by Sex")
