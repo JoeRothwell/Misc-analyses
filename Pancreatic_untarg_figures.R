@@ -5,7 +5,7 @@ library(gplots)
 
 # Data from Neil. hlpos has less observations
 # Data prep
-dir <- "data/final analytical datasets.xlsx"
+dir <- "final analytical datasets.xlsx"
 
 rppos <- read_xlsx(dir, sheet = 1) #%>% select(starts_with("Untg_"))
 rpneg <- read_xlsx(dir, sheet = 2) %>% select(starts_with("Untg_"))
