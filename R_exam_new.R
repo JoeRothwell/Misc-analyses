@@ -3,14 +3,14 @@
 
 # Exam anxiety dataset, correlation and t-test
 library(medicaldata)
-polyps
+data(polyps)
 esoph_ca
 library(faraway)
 diabetes
 exam <- read.delim("Exam Anxiety.dat")
 myopia <- read.csv("MYOPIA-fixed.csv")
 library(aplore3)
-
+# For myopia data
 
 # 2x2 table mobile phone use and melanoma
 matrix(c(136, 107, 297, 165), dimnames = list(c("UM+", "UM-"), c("Mobile+", "Mobile-")))
@@ -21,8 +21,8 @@ matrix(c(136, 107, 297, 165), dimnames = list(c("UM+", "UM-"), c("Mobile+", "Mob
 
 ### Basic R use
 
-# 1. Nous venons d’installer le package « epitools ». Pour utiliser ses fonctions, on doit utiliser 
-# quelle commande ? (based on E2 Q1)
+# 1. Nous avons installe le package « epitools ». Pour utiliser ses fonctions, on doit utiliser 
+# d'abord quelle commande ? (based on E2 Q1)
 install.packages("epitools")
 load("epitools")
 library(epitools)
@@ -36,8 +36,8 @@ library(help=metafor)
 help(package=="metafor")
 
 # 3. Les commandes suivantes sont réalisées :
-a <- 5:10 ; b <- seq(1, 10, by = 2)
-at <- rbind(a, b)
+a <- 4:8 ; b <- seq(1, 9, by = 2)
+dat <- rbind(a, b)
 dat
 # Quelle sortie s’affiche ?
 
@@ -47,18 +47,18 @@ mean(obj)
 2 #  A.
 3 #  B.
 1 #  C.
-2.5 # D.
+2.5 # D*
 
 # 5. Il y a combien d'elements dans le vecteur "vec" suivant ?
 vec <- seq(0, 10, 0.5)
 10 # A
 20 # B
-21 # C
+21 # C*
 40 # D
 
 # Nous souhaitons supprimer l'ensemble des variables dans le workspace. On realise quelle commande ?
-ls() # A
-rm(list = ls()) # B
+rm(ls()) # A
+rm(list = ls()) # B*
 ls(list = rm()) # C
 getwd() # D
 
@@ -99,18 +99,49 @@ polyps.ord <- polyps[order(polyps$baseline), ]
 
 # Q. A partir de la base de donnes polyps, on souhaite selectionner seulement les sujets ages de plus de 20 ans et
 # pour qui le traitement a ete le medicament sulindac. 
-# Quelle commande peut-en utiliser ? La selection sera stockee dans polyp.sel.
+# Quelle commande peut-on utiliser ? La selection sera stockee dans polyp.sel.
 polyp.sel <- subset(polyps, age > 20 & baseline == "sulindac")
 polyp.sel <- subset(polyps, age > 20 | treatment == "sulindac")
 polyp.sel <- polyps[polyps$age > 20 & polyps$treatment == "sulindac", ]
 polyp.sel <- polyps[ , polyps$age > 20 & polyps$treatment == "sulindac"]
 
 
+# Q. Une etude transversale de la sante de 750 participants a ete realise. Chaque participant est identifie par leur
+# variable identifiant "ID".
+# Dans un premier temps, des donnees sur 20 variables ont ete receuillies pour chacun (dat1). Puis, chez 500 de ces
+# participants, 10 variables supplementaires ont ete mesurees (dat2). On souhaite combiner les deux bases 
+# de donnees en gardent seulement les 500 participants qui ont l'ensemble des variables pour une analyse.
+# Quelle commande peut-on utiliser ? (plusieurs reponses attendues)
+
+# ont ete recueilles chez 250 participants
+merge(dat1, dat2, by="ID", all.y = TRUE) #A
+merge(dat1, dat2, by="ID") #B
+merge(dat1, dat2, by="ID", all.x = TRUE) #C
+merge(dat2, dat1) #D
+
+
+### Plots
+
+# 9. Nous pouvons utiliser la fonctionne rnorm() pour generer une distribution normale de chiffres.
+# Si on realise le code 
+plot(rnorm(100))
+# quelle est la sortie ? (get plots of plot, boxplot, barplot, hist)
+
+# Q Dans la base de donnees polyps, on souhaite visualiser la distribution des polyps a 12 mois selon le traitement.
+# Quelle est la meilleure commande pour visualiser les donnees ?
+plot(polyps$number3m, polyps$treatment) # A.
+hist(c(polyps$number3m, polyps$treatment)) # B.
+barplot(polyps$number3m) # C.
+boxplot(polyps$number12m ~ polyps$treatment) # D.
+
+
+# Q Interpret plot
+
 
 # Q. Dans la base de donnees polyps, nous nous interessons si le numero de polyps constates au debut de l'etude est 
-# different selon le groupe de traitement (placebo ou sulindac)
+# different selon le groupe de traitement (placebo ou sulindac). Nous realisons donc un test statistique.
 # Nous disposons de la sortie suivante :
-summary(chisq.test(baseline ~ treatment, data = polyps))
+t.test(baseline ~ treatment, data = polyps)
 
 # data:  baseline by treatment
 # t = 0.85384, df = 14.6, p-value = 0.407
@@ -124,15 +155,9 @@ summary(chisq.test(baseline ~ treatment, data = polyps))
 
 # Quelle affirmation est exacte ? (plusieurs reponses attendues)
 # A. Le test realise ici c'est l'ANOVA
-# B. L'hypothese nulle du test c'est que il n'y a pas de difference entre les groupes de traitement
+# B*. L'hypothese nulle du test c'est que il n'y a pas de difference entre les groupes de traitement
 # C. On rejette l'hypothese null pour inferer qu'il y a un difference entre les deux groupes
-# melanoma et l'usage des telephones portables
 # D. Selon le test, la moyenne dans le group placebo est plus eleve que le moyenne dans le groupe sulindac
-
-
-# 9. Si on realise le code 
-plot(norm(100))
-# quelle est la sortie  ? (get plots of plot, boxplot, barplot, hist)
 
 
 ### Statistical tests
@@ -168,11 +193,12 @@ t.test(Anxiety ~ Gender, dat = exam)
 
 
 # Q. Une etude a constate que 35% des lyceens sont atteints de l'anxiete avant leurs examens. Nous
-# souhaitons tester cette hypothese dans un echantillon de 200 lyceens auxquelles on a demande s'ils avait l'anxiete
-# avant leurs examens ou non. Quelle fonction est plus pertinant pour pouvoir repondre a cette question ?
+# souhaitons tester cette hypothese dans un echantillon de 200 lyceens auxquelles on a demande 
+# s'ils avait l'anxiete avant leurs examens ou non. Quelle fonction est plus pertinant pour pouvoir 
+# repondre a cette question ?
 t.test()
 anova()
-binom.test()
+binom.test() # C*
 chisq.test()
 
 
@@ -182,9 +208,9 @@ chisq.test()
 
 
 # Q. Nous disposons des donnees d'une etude sur l'association entre la fumee et l'hypertension. Au debut de l'etude,
-# les subjets ont declare s'ils etaient fumeurs ou pas et puis ils ont declare tout diagnostic d'hypertension
-# suivant. La periode de temps avant le diagnostic n'a pas ete declare pas les individus. 
-# Quelle mesure d'association est pertinante ?
+# les subjets declarent d'etre fumeurs ou pas et puis tout diagnostic d'hypertension pendant un suivi.
+# A la fin de la suivi, nous obtenons un tableau 2x2 des resultats (fumeur oui ou non, hypertension oui ou on) 
+# sans savoir la duree de suivi. Quelle mesure d'association est applicable ?
 # Odds ratio
 # Rate ratio
 #* Risk ratio
@@ -213,21 +239,23 @@ epitab(melanoma, method = "oddsratio", rev = "both")
 # [1] "fisher.exact"
 
 # Quelle affirmation est exacte ?
-# A. Le risque de melanoma est multiplié par 0.706 pour l'usage telephone portable par rapport au non-usage
-# B. L’intervalle de confiance à 95% de l’OR contient 1
-# C. Au risque 5%, on ne met pas en évidence de lien entre le risque de
+# A. L’intervalle de confiance à 95% de l’OR contient 1
+# B. Au risque 5%, on ne met pas en évidence de lien entre le risque de
 # melanoma et l'usage des telephones portables
+# C*. Le risque de melanoma est multiplié par 0.706 pour l'usage telephone portable par rapport au non-usage
 # D. Le test realise ici n'est pas pertinent
 
 
 ### GLM and LM
 
-# Q. Nous disposons des données d’une étude cas-témoins sur le myope. Nous nous intéressons au lien entre le presence ou
-# l'absence de myope (variable « MYOPIC », codée 1 si l’individu est MYOPE et 0 si l'individu n'est pas myopie),
-# et la refraction spherique equivalente mesure pour chaque individu (variable SPHEQ, en continue).
+# Q. Nous disposons des données d’une étude cas-témoins sur le myope. Nous nous intéressons au lien 
+# entre le presence ou
+# l'absence de myope (variable « myopic », codée 1 si l’individu est myope et 0 si l'individu n'est pas myope),
+# et la refraction spherique equivalente mesure pour chaque individu (variable "spheq", en continu).
 
 # Quelle affirmation est exact ?
-# Si on cherche a tester si SPHEQ  est un facteur de risque pour le myope, le modele de regression a utiliser est un 
+# Si on cherche a tester si SPHEQ  est un facteur de risque pour le myope, le modele de regression a 
+# utiliser est un 
 # modele de Cox
 # modele lineaire
 # modele logistique *
@@ -236,7 +264,7 @@ epitab(melanoma, method = "oddsratio", rev = "both")
 
 
 # Q. Nous disposons de la sortie suivante :
-summary(glm(MYOPIC ~ SPHEQ, data = myopia, family = "binomial"))
+summary(glm(myopic ~ spheq, data = myopia, family = "binomial"))
 
 # Deviance Residuals: 
 #   Min       1Q   Median       3Q      Max  
@@ -267,7 +295,7 @@ summary(glm(MYOPIC ~ SPHEQ, data = myopia, family = "binomial"))
 # SPHEQ ne contient pas la valeur 1
 
 
-# Nous nous rendons compte qu'il fallait ajuster sur l'age dans notre modele myope.
+# Q. Nous nous rendons compte qu'il fallait ajuster sur l'age dans notre modele myope.
 # Maintenant nous disposons de la sortie suivante : 
 
 # Deviance Residuals: 
@@ -294,6 +322,6 @@ summary(glm(MYOPIC ~ SPHEQ, data = myopia, family = "binomial"))
 # A Apres avoir ajuste sur l'age, l'association entre le myope et SPHEQ n'est plus significative 
 # B*. Au risque 5%, l'age n'est pas un facteur de risque pour le myope si on prend en compte SPHEQ
 # C. Dans cet example, ce n'etait pas pertinant d'ajouter l'age dans le modele
-# D.  Aucune réponse n’est exacte
+# D. Aucune réponse n’est exacte
 
 
