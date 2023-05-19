@@ -8,12 +8,11 @@ esoph_ca
 library(faraway)
 diabetes
 exam <- read.delim("Exam Anxiety.dat")
-myopia <- read.csv("MYOPIA-fixed.csv")
 library(aplore3)
 # For myopia data
 
 # 2x2 table mobile phone use and melanoma
-matrix(c(136, 107, 297, 165), dimnames = list(c("UM+", "UM-"), c("Mobile+", "Mobile-")))
+cc <- matrix(c(136, 107, 297, 165), dimnames = list(c("UM+", "UM-"), c("Mobile+", "Mobile-")))
 
 
 ### Questions
@@ -46,8 +45,9 @@ obj <- c(seq(1:3), 4)
 mean(obj)
 2 #  A.
 3 #  B.
-1 #  C.
-2.5 # D*
+2.5 # C*
+1 #  D.
+
 
 # 5. Il y a combien d'elements dans le vecteur "vec" suivant ?
 vec <- seq(0, 10, 0.5)
@@ -74,13 +74,13 @@ lapply(data1, length)
 # Que nous apprend la sortie suivante ? (plusieurs réponses attendues)
 
 summary(polyps)
-#participant_id         sex          age           baseline         treatment     number3m        number12m    
-#Length:22          female: 9   Min.   :13.00   Min.   :  5.00   placebo :11   Min.   :  1.00   Min.   : 1.00  
-#Class :character   male  :13   1st Qu.:18.25   1st Qu.: 10.25   sulindac:11   1st Qu.:  6.00   1st Qu.: 3.75  
-#Mode  :character               Median :22.00   Median : 18.00                 Median : 16.00   Median :21.00  
-#                               Mean   :24.09   Mean   : 40.95                 Mean   : 38.41   Mean   :24.05  
-#                               3rd Qu.:26.00   3rd Qu.: 33.00                 3rd Qu.: 29.25   3rd Qu.:41.00  
-#                               Max.   :50.00   Max.   :318.00                 Max.   :347.00   Max.   :63.00  
+# participant_id         sex          age           baseline         treatment     number3m        number12m    
+# Length:22          female: 9   Min.   :13.00   Min.   :  5.00   placebo :11   Min.   :  1.00   Min.   : 1.00  
+# Class :character   male  :13   1st Qu.:18.25   1st Qu.: 10.25   sulindac:11   1st Qu.:  6.00   1st Qu.: 3.75  
+# Mode  :character               Median :22.00   Median : 18.00                 Median : 16.00   Median :21.00  
+#                                Mean   :24.09   Mean   : 40.95                 Mean   : 38.41   Mean   :24.05  
+#                                3rd Qu.:26.00   3rd Qu.: 33.00                 3rd Qu.: 29.25   3rd Qu.:41.00  
+#                                Max.   :50.00   Max.   :318.00                 Max.   :347.00   Max.   :63.00  
 #                                                                                               NA's   :2
 
 #A*. La base de données « polyp » contient 22 observations
@@ -127,15 +127,35 @@ merge(dat2, dat1) #D
 plot(rnorm(100))
 # quelle est la sortie ? (get plots of plot, boxplot, barplot, hist)
 
-# Q Dans la base de donnees polyps, on souhaite visualiser la distribution des polyps a 12 mois selon le traitement.
-# Quelle est la meilleure commande pour visualiser les donnees ?
-plot(polyps$number3m, polyps$treatment) # A.
-hist(c(polyps$number3m, polyps$treatment)) # B.
-barplot(polyps$number3m) # C.
-boxplot(polyps$number12m ~ polyps$treatment) # D.
+# Q Dans la base de donnees polyps, on souhaite visualiser la distribution des polyps a 12 mois (variable "number12m") 
+# selon le traitement. Quelle est la meilleure commande a realiser ?
+plot(polyps$number12m, polyps$treatment) # A.
+hist(polyps$number12m[polyps$treatment == "sulindac"]) # B.
+barplot(polyps$number12m) # C.
+boxplot(polyps$number12m ~ polyps$treatment) # D.*
 
 
-# Q Interpret plot
+# 1.11. Quelle fonction a pu être utilisée pour obtenir le graphique suivant (la variable « gravite »
+# représente la gravité des troubles psychiatriques des sujets, variant de 1 à 7) :
+# A. plot()
+# B. hist()
+# C. pie()
+# D. barplot()
+
+
+
+### Statistical tests
+
+# 1.4. Quelles affirmations sont exactes ? (plusieurs réponses attendues)
+
+# A*. Le test du Chi-deux est pour determiner dans quelle mesure les effectifs relatifs a un ou plusieurs 
+# caracteres qualitatifs observes sont conformes aux effectifs attendus sous l'hypothese nulle.
+# aléatoires indépendantes et de même loi suit une distribution normale
+# B. Le test du Chi-deux est applicable meme si les effectifs sont tres petits.
+# C. Lors d’un test du Chi-2, la valeur du degré de signification n’est pas dépendante
+# des effectifs des deux échantillons
+# D*. Si les observations sont appariees, il est preferable utiliser le test de McNemar
+
 
 
 # Q. Dans la base de donnees polyps, nous nous interessons si le numero de polyps constates au debut de l'etude est 
@@ -160,8 +180,6 @@ t.test(baseline ~ treatment, data = polyps)
 # D. Selon le test, la moyenne dans le group placebo est plus eleve que le moyenne dans le groupe sulindac
 
 
-### Statistical tests
-
 
 exam <- read.delim("Exam Anxiety.dat")
 # 10. Chez des lyceens, nous nous intéressons au lien entre le note d'en examen (variable "exam"), 
@@ -171,6 +189,27 @@ t.test()
 cor.test()
 anova()
 cor()
+
+
+# Q. On dispose des sorties suivantes concernant le nombre de polyps constate au debut de l'etude et
+# le nombre constate apres 12 mois de traitement :
+
+# data:  polyps$baseline and polyps$number12m
+# t = 1.8135, df = 18, p-value = 0.08647
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#   -0.05989734  0.71176548
+# sample estimates:
+#   cor 
+# 0.3930413 
+
+# Quelle affirmation est exacte ? (plusieurs reponses attendues)
+# A. La fonctionne realisee pour generer ces sorties est lm()
+# B*. L'hypothese alternative du test c'est qu'il n'y a pas de relation entre les deux variables
+# C. Il n'y a pas de correlation entre ces deux variables car l'intervalle de confiance 95% contient zero
+# D. Aucune réponse n’est exacte
+
+
 
 
 # 11. En utilisant les memes donnees "exam", nous avons la sortie suivante :
@@ -193,14 +232,13 @@ t.test(Anxiety ~ Gender, dat = exam)
 
 
 # Q. Une etude a constate que 35% des lyceens sont atteints de l'anxiete avant leurs examens. Nous
-# souhaitons tester cette hypothese dans un echantillon de 200 lyceens auxquelles on a demande 
-# s'ils avait l'anxiete avant leurs examens ou non. Quelle fonction est plus pertinant pour pouvoir 
+# souhaitons tester cette hypothese dans un echantillon de 200 lyceens auxquels on a demande 
+# s'ils avait l'anxiete avant leurs examens ou non. Quelle fonction est plus pertinante pour pouvoir 
 # repondre a cette question ?
 t.test()
 anova()
 binom.test() # C*
 chisq.test()
-
 
 
 
@@ -214,13 +252,14 @@ chisq.test()
 # Odds ratio
 # Rate ratio
 #* Risk ratio
-# Hazards ratio
+# Hazard ratio
 
 
 # Q Nous disposons des données d’une étude cas-témoins chez 705 participants sur le melanoma et l'exposition 
 # aux telephones portables chez 705 participants. Les cas et les temoins sont codes UM+ et UM- et l'usage
 # telephone portable est code Mobile+ et Mobile-. Nous disposons de la sortie suivante suite à l’utilisation 
 # de la fonction epitab() :
+library(epitools)
 epitab(melanoma, method = "oddsratio", rev = "both")
 # [Note: expected structure exposure level 1, 2, disease no, yes]
 
@@ -246,7 +285,32 @@ epitab(melanoma, method = "oddsratio", rev = "both")
 # D. Le test realise ici n'est pas pertinent
 
 
+# Q Une deuxime etude est concue pour etudier l'usage des telephones portables et le risque de melanome. 
+# Dans cette etude, 100 000 participants ont ete suivis depuis 20 ans jusqu'a un diagnostic de melanome ou 
+# non, en considerant l'usage des telephones portables pendant cette periode. Pour obtenir un hazard ratio
+# pour le risque de melanoma, on doit realiser quel modele ?
+
+# Un modele generale lineaire, fonction glm() # A
+# Un modele de Cox, fonction coxph() dans le package survival # B*
+# Un modele regression logistic conditionale, clogit() dans le package survival # C
+# Aucun de ces modeles est adequat # D
+
+
+
 ### GLM and LM
+
+
+### Statistical tests
+
+# Apres avoir realiser un modele lineaire avec la fonction lm(), on souhaite faire un diagnostic 
+# du modele. Quelles affirmations sont exactes ? (plusieurs réponses attendues)
+
+# A*. Nous pouvons realiser la fonction plot() sur le modele lm() pour obtenir la graphique diagnostic.
+# B*. Pour valider le modele, il faut que les residues n'aient pas de structure particuliere.
+# C*. Le Q-Q plot permet d'evaluer les residus par rapport a une distribution normale theorique.
+# D. Le modele est robuste aux observations qui ont beaucoup plus d'influence que d'autres.
+
+
 
 # Q. Nous disposons des données d’une étude cas-témoins sur le myope. Nous nous intéressons au lien 
 # entre le presence ou
@@ -254,7 +318,7 @@ epitab(melanoma, method = "oddsratio", rev = "both")
 # et la refraction spherique equivalente mesure pour chaque individu (variable "spheq", en continu).
 
 # Quelle affirmation est exact ?
-# Si on cherche a tester si SPHEQ  est un facteur de risque pour le myope, le modele de regression a 
+# Si on cherche a tester si SPHEQ est un facteur de risque pour le myope, le modele de regression a 
 # utiliser est un 
 # modele de Cox
 # modele lineaire
@@ -317,6 +381,7 @@ summary(glm(myopic ~ spheq, data = myopia, family = "binomial"))
 # AIC: 339.93
 
 #Number of Fisher Scoring iterations: 6
+
 
 # Quelles affirmations sont exactes ? (plusieurs réponses attendues)
 # A Apres avoir ajuste sur l'age, l'association entre le myope et SPHEQ n'est plus significative 
