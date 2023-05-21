@@ -1,12 +1,11 @@
-# New R exam
-# Datasets to be used
+# Examen R et statistiques 2023
 
+# Jeux de donnees
 # Exam anxiety dataset, correlation and t-test
+
 library(medicaldata)
 data(polyps)
-esoph_ca
 library(faraway)
-diabetes
 exam <- read.delim("Exam Anxiety.dat")
 library(aplore3)
 # For myopia data
@@ -16,18 +15,17 @@ melanome <- matrix(c(136, 107, 297, 165), nrow=2, dimnames = list(c("UM+", "UM-"
 
 ### Questions
 
-
 ### Basic R use
 
-# 1. Nous avons installe le package « epitools ». Pour utiliser ses fonctions, on doit utiliser 
-# d'abord quelle commande ? (based on E2 Q1)
-install.packages("epitools")
-load("epitools")
-library(epitools)
-setwd("epitools")
+# 1. Nous avons installe le package « janitor ». Pour utiliser ses fonctions, on doit utiliser 
+# d'abord quelle commande ?
+install.packages("janitor")
+load("janitor")
+library(janitor)
+setwd("janitor")
 
 # 2. Comment peut-on afficher une liste de toutes les fonctions du package « metafor » après l’avoir 
-# chargé dans la session ? (based on E2 Q2)
+# chargé dans la session ?
 ??metafor
 ls("package:metafor")
 library(help=metafor)
@@ -134,7 +132,7 @@ barplot(polyps$number12m) # C.
 boxplot(polyps$number12m ~ polyps$treatment) # D.*
 
 
-# Q. Quelle fonction a pu être utilisée pour obtenir le graphique suivant (la variable « gravite »
+# [Not included] Q. Quelle fonction a pu être utilisée pour obtenir le graphique suivant (la variable « gravite »
 # représente la gravité des troubles psychiatriques des sujets, variant de 1 à 7) :
 # A. plot()
 # B. hist()
