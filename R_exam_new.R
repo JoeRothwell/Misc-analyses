@@ -12,8 +12,7 @@ library(aplore3)
 # For myopia data
 
 # 2x2 table mobile phone use and melanoma
-cc <- matrix(c(136, 107, 297, 165), dimnames = list(c("UM+", "UM-"), c("Mobile+", "Mobile-")))
-
+melanome <- matrix(c(136, 107, 297, 165), nrow=2, dimnames = list(c("UM+", "UM-"), c("Portable+", "Portable-")))
 
 ### Questions
 
@@ -63,7 +62,7 @@ ls(list = rm()) # C
 getwd() # D
 
 
-# 6. Nous avons importe notre base de donnees « data1 » dans R dans un objet de classe data.frame. 
+# 6. Nous avons importe notre base de donnees « data1 » et elle est stockee dans un objet de classe data.frame. 
 # Pour afficher la classe de chaque variable, on realise quelle commande ?
 summary(data1)
 str(data1)
@@ -89,40 +88,40 @@ summary(polyps)
 #D*. L'age moyenne des participants est 24.09 ans
 
 
-# 8. Dans la meme base de donnees polyps, nous souhaitons mettre on ordre les lignes selon le colonne "baseline" (ascendant). 
-# Nous pouvons utiliser quelle command pour realiser cela et le stocker dans un objet polyps.ord ?
+# 8. Dans la meme base de donnees polyps, nous souhaitons mettre en ordre les lignes selon le colonne "baseline" (ascendant). 
+# Nous pouvons utiliser quelle commande pour realiser cela et le stocker dans un objet polyps.ord ?
 polyps.ord <- polyps[ , order(polyps$baseline)]
 polyps.ord <- reorder(polyps, polyps$baseline)
 polyps.ord <- order(polyps[, "baseline"])
 polyps.ord <- polyps[order(polyps$baseline), ]
 
 
-# Q. A partir de la base de donnes polyps, on souhaite selectionner seulement les sujets ages de plus de 20 ans et
-# pour qui le traitement a ete le medicament sulindac. 
+# Q. A partir de la base de donnes polyps, on souhaite selectionner seulement les sujets ages de plus de 20 ans
+# qui ont recu comme traitement le medicament sulindac. 
 # Quelle commande peut-on utiliser ? La selection sera stockee dans polyp.sel.
 polyp.sel <- subset(polyps, age > 20 & baseline == "sulindac")
 polyp.sel <- subset(polyps, age > 20 | treatment == "sulindac")
-polyp.sel <- polyps[polyps$age > 20 & polyps$treatment == "sulindac", ]
+polyp.sel <- polyps[polyps$age > 20 & polyps$treatment == "sulindac", ] #*
 polyp.sel <- polyps[ , polyps$age > 20 & polyps$treatment == "sulindac"]
 
 
-# Q. Une etude transversale de la sante de 750 participants a ete realise. Chaque participant est identifie par leur
-# variable identifiant "ID".
-# Dans un premier temps, des donnees sur 20 variables ont ete receuillies pour chacun (dat1). Puis, chez 500 de ces
+# Q. Une etude transversale de la sante de 750 participants a ete realisee. Chaque participant est identifie par leur
+# identifiant, la variable "ID".
+# Dans un premier temps, des donnees sur 20 variables ont ete receuillies pour chacun (dat1). Puis, chez 250 de ces
 # participants, 10 variables supplementaires ont ete mesurees (dat2). On souhaite combiner les deux bases 
-# de donnees en gardent seulement les 500 participants qui ont l'ensemble des variables pour une analyse.
+# de donnees en gardent seulement les 250 participants qui ont l'ensemble des variables pour une analyse.
 # Quelle commande peut-on utiliser ? (plusieurs reponses attendues)
 
-# ont ete recueilles chez 250 participants
-merge(dat1, dat2, by="ID", all.y = TRUE) #A
-merge(dat1, dat2, by="ID") #B
+
+merge(dat1, dat2, by="ID", all.y = TRUE) #A*
+merge(dat1, dat2, by="ID") #B*
 merge(dat1, dat2, by="ID", all.x = TRUE) #C
-merge(dat2, dat1) #D
+# Aucune reponse n'est exacte #D
 
 
 ### Plots
 
-# 9. Nous pouvons utiliser la fonctionne rnorm() pour generer une distribution normale de chiffres.
+# Q. Nous pouvons utiliser la fonctionne rnorm() pour generer une distribution normale de chiffres.
 # Si on realise le code 
 plot(rnorm(100))
 # quelle est la sortie ? (get plots of plot, boxplot, barplot, hist)
@@ -135,7 +134,7 @@ barplot(polyps$number12m) # C.
 boxplot(polyps$number12m ~ polyps$treatment) # D.*
 
 
-# 1.11. Quelle fonction a pu être utilisée pour obtenir le graphique suivant (la variable « gravite »
+# Q. Quelle fonction a pu être utilisée pour obtenir le graphique suivant (la variable « gravite »
 # représente la gravité des troubles psychiatriques des sujets, variant de 1 à 7) :
 # A. plot()
 # B. hist()
@@ -146,11 +145,10 @@ boxplot(polyps$number12m ~ polyps$treatment) # D.*
 
 ### Statistical tests
 
-# 1.4. Quelles affirmations sont exactes ? (plusieurs réponses attendues)
+# Q. Quelles affirmations sont exactes ? (plusieurs réponses attendues)
 
 # A*. Le test du Chi-deux est pour determiner dans quelle mesure les effectifs relatifs a un ou plusieurs 
 # caracteres qualitatifs observes sont conformes aux effectifs attendus sous l'hypothese nulle.
-# aléatoires indépendantes et de même loi suit une distribution normale
 # B. Le test du Chi-deux est applicable meme si les effectifs sont tres petits.
 # C. Lors d’un test du Chi-2, la valeur du degré de signification n’est pas dépendante
 # des effectifs des deux échantillons
@@ -175,14 +173,14 @@ t.test(baseline ~ treatment, data = polyps)
 
 # Quelle affirmation est exacte ? (plusieurs reponses attendues)
 # A. Le test realise ici c'est l'ANOVA
-# B*. L'hypothese nulle du test c'est que il n'y a pas de difference entre les groupes de traitement
-# C. On rejette l'hypothese null pour inferer qu'il y a un difference entre les deux groupes
-# D. Selon le test, la moyenne dans le group placebo est plus eleve que le moyenne dans le groupe sulindac
+# B*. L'hypothese nulle du test c'est que il n'y a pas de difference de polyps entre les groupes de traitement
+# C*. On ne peut pas rejetter l'hypothese nulle pour conclure une difference entre les deux groupes
+# D. Selon le test, la moyenne dans le groupe placebo est plus elevee que le moyenne dans le groupe sulindac
 
 
 
 exam <- read.delim("Exam Anxiety.dat")
-# 10. Chez des lyceens, nous nous intéressons au lien entre le note d'en examen (variable "exam"), 
+# Q. Chez des lyceens, nous nous intéressons au lien entre le note d'en examen (variable "exam"), 
 # un score d'anxiete ("anxiety") et 
 # le sexe (genre). On souhaite tester le lien entre le "exam" et "anxiete". Quelle commande peut-on utiliser ?
 t.test()
@@ -193,6 +191,7 @@ cor()
 
 # Q. On dispose des sorties suivantes concernant le nombre de polyps constate au debut de l'etude et
 # le nombre constate apres 12 mois de traitement :
+cor.test(polyps$baseline, polyps$number12m)
 
 # data:  polyps$baseline and polyps$number12m
 # t = 1.8135, df = 18, p-value = 0.08647
@@ -206,13 +205,13 @@ cor()
 # Quelle affirmation est exacte ? (plusieurs reponses attendues)
 # A. La fonctionne realisee pour generer ces sorties est lm()
 # B*. L'hypothese alternative du test c'est qu'il n'y a pas de relation entre les deux variables
-# C. Il n'y a pas de correlation entre ces deux variables car l'intervalle de confiance 95% contient zero
+# C*. On ne mets pas en evidence une vraie correlation car l'intervalle de confiance 95% contient zero
 # D. Aucune réponse n’est exacte
 
 
 
 
-# 11. En utilisant les memes donnees "exam", nous avons la sortie suivante :
+# Q. En utilisant les memes donnees "exam", nous avons la sortie suivante :
 t.test(Anxiety ~ Gender, dat = exam)
 
 # data:  Anxiety by Gender
@@ -233,7 +232,7 @@ t.test(Anxiety ~ Gender, dat = exam)
 
 # Q. Une etude a constate que 35% des lyceens sont atteints de l'anxiete avant leurs examens. Nous
 # souhaitons tester cette hypothese dans un echantillon de 200 lyceens auxquels on a demande 
-# s'ils avait l'anxiete avant leurs examens ou non. Quelle fonction est plus pertinante pour pouvoir 
+# s'ils avaient l'anxiete avant leurs examens ou non. Quelle fonction est plus pertinante pour pouvoir 
 # repondre a cette question ?
 t.test()
 anova()
@@ -247,7 +246,7 @@ chisq.test()
 
 # Q. Nous disposons des donnees d'une etude sur l'association entre la fumee et l'hypertension. Au debut de l'etude,
 # les subjets declarent d'etre fumeurs ou pas et puis tout diagnostic d'hypertension pendant un suivi.
-# A la fin de la suivi, nous obtenons un tableau 2x2 des resultats (fumeur oui ou non, hypertension oui ou on) 
+# A la fin du suivi, nous obtenons un tableau 2x2 des resultats (fumeur oui ou non, hypertension oui ou on) 
 # sans savoir la duree de suivi. Quelle mesure d'association est applicable ?
 # Odds ratio
 # Rate ratio
@@ -260,7 +259,7 @@ chisq.test()
 # telephone portable est code Mobile+ et Mobile-. Nous disposons de la sortie suivante suite à l’utilisation 
 # de la fonction epitab() :
 library(epitools)
-epitab(melanoma, method = "oddsratio", rev = "both")
+epitab(melanome, method = "oddsratio", rev = "both")
 # [Note: expected structure exposure level 1, 2, disease no, yes]
 
 # $tab
@@ -285,14 +284,14 @@ epitab(melanoma, method = "oddsratio", rev = "both")
 # D. Le test realise ici n'est pas pertinent
 
 
-# Q Une deuxime etude est concue pour etudier l'usage des telephones portables et le risque de melanome. 
+# Q Une deuxieme etude est realisee pour etudier l'usage des telephones portables et le risque de melanome. 
 # Dans cette etude, 100 000 participants ont ete suivis depuis 20 ans jusqu'a un diagnostic de melanome ou 
 # non, en considerant l'usage des telephones portables pendant cette periode. Pour obtenir un hazard ratio
 # pour le risque de melanoma, on doit realiser quel modele ?
 
 # Un modele generale lineaire, fonction glm() # A
 # Un modele de Cox, fonction coxph() dans le package survival # B*
-# Un modele regression logistic conditionale, clogit() dans le package survival # C
+# Un modele regression logistique conditionelle, clogit() dans le package survival # C
 # Aucun de ces modeles est adequat # D
 
 
@@ -302,24 +301,21 @@ epitab(melanoma, method = "oddsratio", rev = "both")
 
 ### Statistical tests
 
-# Apres avoir realiser un modele lineaire avec la fonction lm(), on souhaite faire un diagnostic 
+# Apres avoir realise un modele lineaire avec la fonction lm(), on souhaite faire un diagnostic 
 # du modele. Quelles affirmations sont exactes ? (plusieurs réponses attendues)
 
 # A*. Nous pouvons realiser la fonction plot() sur le modele lm() pour obtenir la graphique diagnostic.
 # B*. Pour valider le modele, il faut que les residues n'aient pas de structure particuliere.
 # C*. Le Q-Q plot permet d'evaluer les residus par rapport a une distribution normale theorique.
-# D. Le modele est robuste aux observations qui ont beaucoup plus d'influence que d'autres.
+# D. Le modele est robuste aux observations qui ont beaucoup plus d'influence dans le modele que d'autres.
 
 
 
 # Q. Nous disposons des données d’une étude cas-témoins sur le myope. Nous nous intéressons au lien 
-# entre le presence ou
+# entre la presence ou
 # l'absence de myope (variable « myopic », codée 1 si l’individu est myope et 0 si l'individu n'est pas myope),
 # et la refraction spherique equivalente mesure pour chaque individu (variable "spheq", en continu).
-
-# Quelle affirmation est exact ?
-# Si on cherche a tester si SPHEQ est un facteur de risque pour le myope, le modele de regression a 
-# utiliser est un 
+# Si on cherche a tester si "spheq" est un facteur de risque pour le myope, le modele de regression a utiliser est un 
 # modele de Cox
 # modele lineaire
 # modele logistique *
@@ -353,14 +349,15 @@ summary(glm(myopic ~ spheq, data = myopia, family = "binomial"))
 # Quelles affirmations sont exactes ? (plusieurs réponses attendues)
 # A* La fonction glm() a pu être utilisée pour obtenir ces résultats
 # B*. Au risque 5%, il existe un lien significatif entre la myope et SPHEQ
-# C. Au risque 5%, on montre une aumentation du risque de myope chez les individus
+# C. Au risque 5%, on met en evidence une aumentation du risque de myope chez les individus
 # pour lesquels SPHEQ est plus eleve
 # D*. L’intervalle de confiance à 95% de l’OR mesurant l’association entre la myope et
 # SPHEQ ne contient pas la valeur 1
 
 
-# Q. Nous nous rendons compte qu'il fallait ajuster sur l'age dans notre modele myope.
+# Q. Nous nous rendons compte qu'il faut ajuster sur l'age dans notre modele myope.
 # Maintenant nous disposons de la sortie suivante : 
+summary(glm(myopic ~ spheq + age, data = myopia, family = "binomial"))
 
 # Deviance Residuals: 
 #     Min       1Q   Median       3Q      Max  
@@ -386,7 +383,7 @@ summary(glm(myopic ~ spheq, data = myopia, family = "binomial"))
 # Quelles affirmations sont exactes ? (plusieurs réponses attendues)
 # A Apres avoir ajuste sur l'age, l'association entre le myope et SPHEQ n'est plus significative 
 # B*. Au risque 5%, l'age n'est pas un facteur de risque pour le myope si on prend en compte SPHEQ
-# C. Dans cet example, ce n'etait pas pertinant d'ajouter l'age dans le modele
+# C. Dans cet exemple, ce n'etait pas pertinent d'ajouter l'age dans le modele
 # D. Aucune réponse n’est exacte
 
 
